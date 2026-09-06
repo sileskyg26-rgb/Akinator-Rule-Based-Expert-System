@@ -1,3 +1,5 @@
+
+
 # Akinator de Stardew Valley
 
 Un proyecto para adivinar personajes de Stardew Valley combinando la lógica de un motor de inferencia en **Scheme (Racket)** con una interfaz gráfica modular en **Python (Tkinter)**.
