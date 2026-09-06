@@ -1,303 +1,23 @@
 #lang racket
 
-; ============================================================
-; Base de conocimiento - Akinator Stardew Valley
-; EIF-400 Paradigmas de Programacion
-; ============================================================
-;
-; DOMINIO: Personajes (NPCs) de Stardew Valley
-; (32 entidades: 30 residentes humanos + Krobus y la Enana)
-;
-; Formato de cada entidad (igual al del enunciado):
-;   (nombre-entidad (caracteristica-1 valor) (caracteristica-2 valor) ...)
-; valor puede ser: si | no
-; (si una caracteristica no aparece para una entidad, se asume "desconocido")
-;
-; ============================================================
-; LAS 21 CARACTERISTICAS USADAS (documentar en el informe tecnico)
-; ============================================================
-; 1.  es-npc                 -> es un personaje no jugable del pueblo
-; 2.  es-soltero              -> es candidato de matrimonio (bachelor/bachelorette)
-; 3.  es-mujer                -> es de genero femenino
-; 4.  es-nino                 -> es un nino/nina
-; 5.  es-anciano               -> es un adulto mayor
-; 6.  vive-en-la-montana      -> su casa/zona esta en el area de la montana
-; 7.  tiene-tienda            -> es dueno/a de un negocio o tienda
-; 8.  trabaja-en-joja         -> trabaja para Joja Corporation
-; 9.  le-gusta-pescar         -> tiene la pesca como afición/oficio marcado
-; 10. le-gusta-mineria        -> le gusta explorar minas / trabajar con minerales
-; 11. le-gusta-arte           -> practica musica, pintura, escritura o artesania
-; 12. cria-animales           -> cria o cuida animales de granja
-; 13. trabaja-en-medicina     -> trabaja en la clinica (medico/enfermera)
-; 14. esta-casado             -> esta casado/a dentro del pueblo
-; 15. tiene-hijos              -> tiene hijos o hijastros
-; 16. trabaja-en-saloon       -> trabaja en el Stardrop Saloon
-; 17. es-forastero            -> no nacio en Pelican Town, se mudo despues
-; 18. le-gusta-cocinar        -> cocina o le gusta la gastronomia
-; 19. usa-silla-de-ruedas     -> usa silla de ruedas
-; 20. es-magico-o-misterioso  -> tiene un aire magico/misterioso/espiritual
-; 21. es-hijo-unico           -> no tiene hermanos ni hermanas
-;
-; ============================================================
+(require "conocimiento.rkt")
+(require "reglas.rkt")
 
-(define conocimiento
-  '((abigail
-      (es-npc si) (es-soltero si) (es-mujer si) (es-nino no) (es-anciano no)
-      (le-gusta-mineria si) (le-gusta-arte si) (esta-casado no)
-      (es-forastero no) (trabaja-en-joja no) (es-hijo-unico si))
-
-    (alex
-      (es-npc si) (es-soltero si) (es-mujer no) (es-anciano no)
-      (le-gusta-arte no) (trabaja-en-joja no) (esta-casado no)
-      (es-forastero no) (cria-animales no) (tiene-hijos no))
-
-    (elliott
-      (es-npc si) (es-soltero si) (es-mujer no) (le-gusta-pescar si)
-      (le-gusta-arte si) (es-forastero si) (esta-casado no)
-      (vive-en-la-montana no) (trabaja-en-joja no) (usa-silla-de-ruedas no))
-
-    (emily
-      (es-npc si) (es-soltero si) (es-mujer si) (trabaja-en-saloon si)
-      (le-gusta-arte si) (es-magico-o-misterioso si) (esta-casado no)
-      (es-nino no) (trabaja-en-joja no) (es-hijo-unico no))
-
-    (haley
-      (es-npc si) (es-soltero si) (es-mujer si) (le-gusta-arte si)
-      (cria-animales no) (es-forastero no) (esta-casado no)
-      (trabaja-en-joja no) (le-gusta-pescar no) (es-hijo-unico no))
-
-    (harvey
-      (es-npc si) (es-soltero si) (es-mujer no) (trabaja-en-medicina si)
-      (es-anciano no) (esta-casado no) (es-forastero no) (trabaja-en-joja no))
-
-    (leah
-      (es-npc si) (es-soltero si) (es-mujer si) (le-gusta-arte si)
-      (es-forastero si) (cria-animales no) (esta-casado no) (trabaja-en-joja no))
-
-    (maru
-      (es-npc si) (es-soltero si) (es-mujer si) (trabaja-en-medicina si)
-      (vive-en-la-montana si) (le-gusta-mineria si) (esta-casado no) (tiene-hijos no)
-      (es-hijo-unico no))
-
-    (penny
-      (es-npc si) (es-soltero si) (es-mujer si) (le-gusta-cocinar no)
-      (tiene-hijos no) (esta-casado no) (es-forastero no) (trabaja-en-joja no)
-      (es-hijo-unico si))
-
-    (sam
-      (es-npc si) (es-soltero si) (es-mujer no) (le-gusta-arte si)
-      (cria-animales no) (esta-casado no) (es-forastero no) (trabaja-en-joja no)
-      (es-hijo-unico no))
-
-    (sebastian
-      (es-npc si) (es-soltero si) (es-mujer no) (vive-en-la-montana si)
-      (le-gusta-arte no) (es-forastero no) (esta-casado no) (trabaja-en-joja no)
-      (es-hijo-unico no))
-
-    (shane
-      (es-npc si) (es-soltero si) (es-mujer no) (trabaja-en-joja si)
-      (cria-animales si) (esta-casado no) (es-forastero no)
-      (es-anciano no))
-
-    (caroline
-      (es-npc si) (es-soltero no) (es-mujer si) (esta-casado si)
-      (tiene-hijos si) (tiene-tienda no) (trabaja-en-joja no) (es-forastero no))
-
-    (clint
-      (es-npc si) (es-soltero no) (es-mujer no) (tiene-tienda si)
-      (le-gusta-mineria si) (esta-casado no) (trabaja-en-joja no) (es-anciano no))
-
-    (demetrius
-      (es-npc si) (es-soltero no) (es-mujer no) (esta-casado si)
-      (vive-en-la-montana si) (trabaja-en-medicina no) (tiene-hijos si)
-      (le-gusta-mineria si))
-
-    (evelyn
-      (es-npc si) (es-soltero no) (es-mujer si) (es-anciano si)
-      (cria-animales no) (tiene-hijos si) (esta-casado si) (trabaja-en-joja no))
-
-    (george
-      (es-npc si) (es-soltero no) (es-mujer no) (es-anciano si)
-      (usa-silla-de-ruedas si) (esta-casado si) (tiene-hijos no) (trabaja-en-joja no))
-
-    (gus
-      (es-npc si) (es-soltero no) (es-mujer no) (trabaja-en-saloon si)
-      (tiene-tienda si) (le-gusta-cocinar si) (esta-casado no) (es-anciano no))
-
-    (jas
-      (es-npc si) (es-soltero no) (es-mujer si) (es-nino si)
-      (cria-animales no) (tiene-hijos no) (esta-casado no) (trabaja-en-joja no)
-      (es-hijo-unico si))
-
-    (jodi
-      (es-npc si) (es-soltero no) (es-mujer si) (esta-casado si)
-      (tiene-hijos si) (le-gusta-cocinar si) (trabaja-en-joja no) (es-forastero no))
-
-    (kent
-      (es-npc si) (es-soltero no) (es-mujer no) (esta-casado si)
-      (es-forastero no) (tiene-hijos si) (trabaja-en-joja no) (es-anciano no))
-
-    (lewis
-      (es-npc si) (es-soltero no) (es-mujer no) (es-anciano si)
-      (esta-casado no) (trabaja-en-joja no) (tiene-hijos no) (es-forastero no))
-
-    (linus
-      (es-npc si) (es-soltero no) (es-mujer no) (vive-en-la-montana si)
-      (es-forastero si) (esta-casado no) (tiene-hijos no) (trabaja-en-joja no))
-
-    (marnie
-      (es-npc si) (es-soltero no) (es-mujer si) (cria-animales si)
-      (tiene-tienda si) (esta-casado no) (tiene-hijos no) (es-anciano no))
-
-    (pam
-      (es-npc si) (es-soltero no) (es-mujer si) (tiene-hijos si)
-      (esta-casado no) (trabaja-en-joja no) (cria-animales no) (es-anciano no))
-
-    (pierre
-      (es-npc si) (es-soltero no) (es-mujer no) (tiene-tienda si)
-      (esta-casado si) (tiene-hijos si) (es-forastero no) (trabaja-en-joja no))
-
-    (robin
-      (es-npc si) (es-soltero no) (es-mujer si) (vive-en-la-montana si)
-      (esta-casado si) (tiene-tienda si) (tiene-hijos si) (trabaja-en-joja no))
-
-    (vincent
-      (es-npc si) (es-soltero no) (es-mujer no) (es-nino si)
-      (tiene-hijos no) (esta-casado no) (trabaja-en-joja no) (cria-animales no)
-      (es-hijo-unico no))
-
-    (willy
-      (es-npc si) (es-soltero no) (es-mujer no) (le-gusta-pescar si)
-      (tiene-tienda si) (es-forastero si) (esta-casado no) (es-anciano no))
-
-    (wizard
-      (es-npc si) (es-soltero no) (es-mujer no) (es-magico-o-misterioso si)
-      (es-forastero si) (esta-casado no) (tiene-hijos no) (es-anciano no))
-
-    (krobus
-      (es-npc si) (es-soltero si) (es-mujer no) (es-magico-o-misterioso si)
-      (tiene-tienda si) (es-forastero si) (vive-en-la-montana no)
-      (esta-casado no) (tiene-hijos no) (trabaja-en-joja no))
-
-    (la-enana
-      (es-npc si) (es-soltero no) (es-mujer si) (es-magico-o-misterioso si)
-      (tiene-tienda si) (le-gusta-mineria si) (es-forastero si)
-      (esta-casado no) (tiene-hijos no) (vive-en-la-montana no))))
-
-
-; ============================================================
-; Reglas de inferencia - Akinator Stardew Valley
-; EIF-400 Paradigmas de Programacion
-; ============================================================
-;
-; Formato de cada regla:
-;   (antecedentes consecuente-caracteristica consecuente-valor)
-; donde antecedentes es una lista de (caracteristica valor) que deben
-; cumplirse TODAS para que se derive el consecuente.
-;
-; IMPORTANTE: una regla solo agrega el hecho derivado si la entidad
-; NO tiene ya un valor explicito para esa caracteristica (nunca
-; sobrescribe hechos declarados directamente en la base).
-; ============================================================
-
-(define reglas
-  '((((trabaja-en-joja si))                     es-npc si)
-    (((trabaja-en-medicina si))                 es-npc si)
-    (((trabaja-en-saloon si))                   es-npc si)
-    (((tiene-tienda si))                        es-npc si)
-    (((es-magico-o-misterioso si))              es-npc si)
-    (((es-nino si))                             es-soltero no)
-    (((esta-casado si))                         es-soltero no)
-    (((es-anciano si) (esta-casado no))         es-soltero no)
-    (((usa-silla-de-ruedas si))                 es-anciano si)
-    (((trabaja-en-joja si))                     es-soltero si)))
-
-; ------------------------------------------------------------
-; obtener-valor: busca el valor de una caracteristica dentro de
-; la lista de hechos de una entidad. Devuelve 'desconocido si no
-; esta presente.
-; ------------------------------------------------------------
-(define (obtener-valor hechos caracteristica)
-  (cond
-    ((null? hechos) 'desconocido)
-    ((eq? (caar hechos) caracteristica) (cadar hechos))
-    (else (obtener-valor (cdr hechos) caracteristica))))
-
-; ------------------------------------------------------------
-; cumple-antecedentes?: verifica recursivamente que TODAS las
-; condiciones de una regla se cumplan sobre los hechos dados.
-; ------------------------------------------------------------
-(define (cumple-antecedentes? antecedentes hechos)
-  (cond
-    ((null? antecedentes) #t)
-    (else
-      (let* ((condicion (car antecedentes))
-             (caracteristica (car condicion))
-             (valor-esperado (cadr condicion))
-             (valor-real (obtener-valor hechos caracteristica)))
-        (if (eq? valor-real valor-esperado)
-            (cumple-antecedentes? (cdr antecedentes) hechos)
-            #f)))))
-
-; ------------------------------------------------------------
-; aplicar-una-regla: si la regla aplica y el consecuente aun no
-; esta en los hechos, lo agrega (cons) al frente de la lista.
-; ------------------------------------------------------------
-(define (aplicar-una-regla regla hechos)
-  (let* ((antecedentes (car regla))
-         (caracteristica (cadr regla))
-         (valor (caddr regla)))
-    (if (and (cumple-antecedentes? antecedentes hechos)
-             (eq? (obtener-valor hechos caracteristica) 'desconocido))
-        (cons (list caracteristica valor) hechos)
-        hechos)))
-
-; ------------------------------------------------------------
-; aplicar-reglas-a-hechos: recorre recursivamente TODAS las
-; reglas y las va aplicando en cadena sobre los hechos de una
-; sola entidad.
-; ------------------------------------------------------------
-(define (aplicar-reglas-a-hechos lista-reglas hechos)
-  (cond
-    ((null? lista-reglas) hechos)
-    (else
-      (aplicar-reglas-a-hechos (cdr lista-reglas)
-                                (aplicar-una-regla (car lista-reglas) hechos)))))
-
-; ------------------------------------------------------------
-; aplicar-reglas-a-entidad: aplica las reglas a los hechos de
-; una entidad puntual, conservando su nombre.
-; ------------------------------------------------------------
-(define (aplicar-reglas-a-entidad entidad lista-reglas)
-  (let* ((nombre (car entidad))
-         (hechos (cdr entidad)))
-    (cons nombre (aplicar-reglas-a-hechos lista-reglas hechos))))
-
-; ------------------------------------------------------------
-; aplicar-reglas-a-base: recorre recursivamente TODA la base de
-; conocimiento aplicando las reglas a cada entidad.
-; ------------------------------------------------------------
-(define (aplicar-reglas-a-base base lista-reglas)
-  (cond
-    ((null? base) '())
-    (else
-      (cons (aplicar-reglas-a-entidad (car base) lista-reglas)
-            (aplicar-reglas-a-base (cdr base) lista-reglas)))))
-
+(provide inferir explicar reiniciar)
 
 ; ============================================================
 ; Motor de inferencia - Akinator Stardew Valley
 ; EIF-400 Paradigmas de Programacion
 ; ============================================================
 ;
-; Este archivo asume que ya estan cargados:
-;   - conocimiento.scm  (define 'conocimiento')
-;   - reglas.scm        (define 'reglas' y 'aplicar-reglas-a-base')
+; Este archivo importa:
+;   - conocimiento.rkt  (define 'conocimiento')
+;   - reglas.rkt        (define 'reglas', 'obtener-valor' y
+;                       'aplicar-reglas-a-base')
 ;
-; En MIT/GNU Scheme o DrRacket #lang scheme:
-;   (load "conocimiento.scm")
-;   (load "reglas.scm")
-;   (load "motor.scm")
+; Ejecucion:
+;   racket motor.rkt        -> arranca el servidor JSON
+;   En DrRacket: abrir motor.rkt y Run.
 ;
 ; ------------------------------------------------------------
 ; REPRESENTACION USADA EN ESTE ARCHIVO
@@ -463,8 +183,8 @@
 ; SELECCION DINAMICA DE PREGUNTAS
 ; ============================================================
 
-; Lista de las 20 caracteristicas usadas en el dominio (deben
-; coincidir exactamente con las de conocimiento.scm)
+; Lista de las 21 caracteristicas usadas en el dominio (deben
+; coincidir exactamente con las de conocimiento.rkt)
 (define todas-las-caracteristicas
   '(es-npc es-soltero es-mujer es-nino es-anciano vive-en-la-montana
     tiene-tienda trabaja-en-joja le-gusta-pescar le-gusta-mineria
@@ -682,3 +402,98 @@
 ; sin preguntas hechas. Python simplemente vuelve a usar estas
 ; listas vacias como punto de partida de una nueva partida.
 (define (reiniciar) (list '() '()))
+
+
+; ############################################################
+; ADAPTADOR JSON - puente entre Python y el motor de inferencia
+; ############################################################
+;
+; Protocolo: un mensaje JSON por linea (stdin/stdout)
+;
+; Entrada (Python -> Scheme):
+;   {"accion":"inferir",
+;    "respuestas":[["es-mujer","si"],["es-nino","no"]],
+;    "preguntadas":["es-mujer","es-nino"]}
+;
+; Salida (Scheme -> Python), segun el estado:
+;   {"tipo":"pregunta","caracteristica":"es-soltero","candidatos":18}
+;   {"tipo":"veredicto","entidad":"abigail","confianza":0.83,
+;    "explicacion":[["es-mujer","si"],["le-gusta-mineria","si"]]}
+;   {"tipo":"veredicto","entidad":null,"confianza":0.31,"explicacion":[]}
+;   {"tipo":"error","mensaje":"..."}
+;
+; Las respuestas viajan como LISTA de pares (no como objeto JSON)
+; para preservar el orden cronologico, que el descarte permanente
+; necesita para calcular las sumas parciales en orden.
+; ############################################################
+
+(require json)
+
+; ------------------------------------------------------------
+; json->par: convierte ["es-mujer","si"] en el par
+; (es-mujer . si) que usa el motor de inferencia.
+; ------------------------------------------------------------
+(define (json->par p)
+  (cons (string->symbol (car p)) (string->symbol (cadr p))))
+
+; ------------------------------------------------------------
+; explicacion->json: convierte la lista de evidencias del motor
+; en pares de strings para JSON.
+; ------------------------------------------------------------
+(define (explicacion->json evidencia)
+  (map (lambda (e) (list (symbol->string (car e))
+                         (symbol->string (cadr e))))
+       evidencia))
+
+; ------------------------------------------------------------
+; resultado->json: traduce el veredicto del motor a JSON.
+; Si el veredicto es 'ninguno, la entidad va como null (#f)
+; y no se llama explicar.
+; ------------------------------------------------------------
+(define (resultado->json res respuestas)
+  (if (eq? (car res) 'pregunta)
+      (hash 'tipo "pregunta"
+            'caracteristica (symbol->string (cadr res))
+            'candidatos (caddr res))
+      (let ((nombre (cadr res))
+            (confianza (exact->inexact (caddr res))))
+        (if (eq? nombre 'ninguno)
+            (hash 'tipo "veredicto"
+                  'entidad #f
+                  'confianza confianza
+                  'explicacion '())
+            (hash 'tipo "veredicto"
+                  'entidad (symbol->string nombre)
+                  'confianza confianza
+                  'explicacion (explicacion->json (explicar nombre respuestas)))))))
+
+; ------------------------------------------------------------
+; procesar-mensaje: parsea una linea JSON, ejecuta inferir y
+; devuelve la linea JSON de respuesta.
+; ------------------------------------------------------------
+(define (procesar-mensaje linea)
+  (let* ((msg (string->jsexpr linea))
+         (respuestas (map json->par (hash-ref msg 'respuestas '())))
+         (preguntadas (map string->symbol (hash-ref msg 'preguntadas '()))))
+    (jsexpr->string (resultado->json (inferir respuestas preguntadas) respuestas))))
+
+; ------------------------------------------------------------
+; servidor: ciclo principal. Lee una linea, responde una linea.
+; El flush-output es OBLIGATORIO: sin el, Python se queda
+; esperando forever porque la salida queda bufferizada.
+; ------------------------------------------------------------
+(define (servidor)
+  (let loop ()
+    (let ((linea (read-line (current-input-port) 'any)))
+      (unless (eof-object? linea)
+        (with-handlers ((exn:fail?
+                         (lambda (e)
+                           (displayln (jsexpr->string
+                                       (hash 'tipo "error"
+                                             'mensaje (exn-message e))))
+                           (flush-output (current-output-port)))))
+          (displayln (procesar-mensaje linea))
+          (flush-output (current-output-port)))
+        (loop)))))
+
+(servidor)
