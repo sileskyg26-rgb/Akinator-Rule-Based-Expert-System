@@ -1,0 +1,101 @@
+import tkinter as tk
+import os
+from PIL import Image, ImageTk
+
+class StardewTheme:
+    BG_WOOD = "#2c1e11"
+    PANEL_PARCHMENT = "#f4e3c1"
+    TEXT_DARK = "#212121"
+    TEXT_LIGHT = "#ffecb3"
+    BTN_GREEN = "#4caf50"
+    BTN_LIGHT_GREEN = "#8bc34a"
+    BTN_ORANGE = "#ff9800"
+    BTN_RED = "#ff5722"
+    BTN_DARK_RED = "#f44336"
+    BTN_BROWN = "#795548"
+
+class QuestionView(tk.Frame):
+    """Componente modular para mostrar la pregunta y opciones de respuesta temáticas."""
+    def __init__(self, parent, on_answer_callback):
+        super().__init__(parent, bg=StardewTheme.PANEL_PARCHMENT, bd=5, relief="solid")
+        self.on_answer_callback = on_answer_callback
+        self._construir_widgets()
+
+    def _construir_widgets(self):
+        self.lbl_estado = tk.Label(self, text="", font=("Arial", 11, "italic"), bg=StardewTheme.PANEL_PARCHMENT, fg="#5d4037")
+        self.lbl_estado.pack(pady=10)
+
+        self.lbl_pregunta = tk.Label(self, text="", font=("Georgia", 15, "bold"), bg=StardewTheme.PANEL_PARCHMENT, fg=StardewTheme.TEXT_DARK, wraplength=650, justify="center")
+        self.lbl_pregunta.pack(pady=20, padx=20)
+
+        self.botones_frame = tk.Frame(self, bg=StardewTheme.PANEL_PARCHMENT)
+        self.botones_frame.pack(pady=20)
+
+        opciones = [
+            ("Sí", "si", StardewTheme.BTN_GREEN),
+            ("Probablemente", "probablemente", StardewTheme.BTN_LIGHT_GREEN),
+            ("No sé", "no-se", StardewTheme.BTN_ORANGE),
+            ("Probablemente no", "probablemente-no", StardewTheme.BTN_RED),
+            ("No", "no", StardewTheme.BTN_DARK_RED)
+        ]
+
+        for texto, valor, color in opciones:
+            btn = tk.Button(
+                self.botones_frame, text=texto, font=("Arial", 10, "bold"),
+                bg=color, fg="white", width=14, height=2, bd=3, relief="raised",
+                command=lambda v=valor: self.on_answer_callback(v)
+            )
+            btn.pack(side="left", padx=4)
+
+    def actualizar(self, texto_pregunta, estado_texto):
+        self.lbl_estado.config(text=estado_texto)
+        self.lbl_pregunta.config(text=texto_pregunta)
+        self.botones_frame.pack(pady=20)
+
+
+class ResultView(tk.Frame):
+    """Componente modular para mostrar el resultado, imagen del personaje y explicabilidad."""
+    def __init__(self, parent):
+        super().__init__(parent, bg=StardewTheme.PANEL_PARCHMENT)
+        self.img_tk = None
+        self._construir_widgets()
+
+    def _construir_widgets(self):
+        self.lbl_imagen = tk.Label(self, bg=StardewTheme.PANEL_PARCHMENT)
+        self.lbl_imagen.pack(pady=5)
+
+        self.lbl_resultado = tk.Label(self, text="", font=("Georgia", 14, "bold"), bg=StardewTheme.PANEL_PARCHMENT, fg=StardewTheme.TEXT_DARK, justify="center")
+        self.lbl_resultado.pack(pady=10, padx=20)
+
+    def mostrar(self, entidad, confianza, explicacion):
+        if entidad:
+            nombre_limpio = entidad.replace("-", " ").title()
+            texto = f"🎉 ¡He pensado en {nombre_limpio}!\n(Confianza: {confianza:.1f}%)"
+            
+            # Cargar imagen desde images/ con el nombre exacto de la entidad
+            ruta_img = os.path.abspath(os.path.join(os.path.dirname(__file__), "images", f"{entidad}.png"))
+            if os.path.exists(ruta_img):
+                try:
+                    pil_img = Image.open(ruta_img).resize((110, 110), Image.Resampling.LANCZOS)
+                    self.img_tk = ImageTk.PhotoImage(pil_img)
+                    self.lbl_imagen.config(image=self.img_tk)
+                except Exception:
+                    self.lbl_imagen.config(image="")
+            else:
+                self.lbl_imagen.config(image="")
+
+            if explicacion:
+                texto += "\n\nRazones principales:"
+                for exp in explicacion[:3]:
+                    feat = exp[0].replace("-", " ")
+                    val = exp[1]
+                    texto += f"\n• {feat} = {val}"
+            
+            self.lbl_resultado.config(text=texto)
+        else:
+            self.lbl_imagen.config(image="")
+            self.lbl_resultado.config(text="😢 No pude identificar con certeza al personaje o se agotó el límite de preguntas.")
+
+    def limpiar(self):
+        self.lbl_imagen.config(image="")
+        self.lbl_resultado.config(text="")

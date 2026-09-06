@@ -181,7 +181,7 @@
       (tiene-tienda si) (es-forastero si) (vive-en-la-montana no)
       (esta-casado no) (tiene-hijos no) (trabaja-en-joja no))
 
-    (la-enana
+    (enano
       (es-npc si) (es-soltero no) (es-mujer si) (es-magico-o-misterioso si)
       (tiene-tienda si) (le-gusta-mineria si) (es-forastero si)
       (esta-casado no) (tiene-hijos no) (vive-en-la-montana no))))
