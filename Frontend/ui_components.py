@@ -67,20 +67,46 @@ class ResultView(tk.Frame):
         self.lbl_resultado = tk.Label(self, text="", font=("Georgia", 14, "bold"), bg=StardewTheme.PANEL_PARCHMENT, fg=StardewTheme.TEXT_DARK, justify="center")
         self.lbl_resultado.pack(pady=10, padx=20)
 
+    def _cargar_imagen_segura(self, personaje_id):
+        """Busca de forma flexible la imagen del personaje manejando mayúsculas y nombres especiales."""
+        if not personaje_id:
+            return None
+            
+        carpeta_imgs = os.path.join(os.path.dirname(__file__), "images")
+        
+        # Generar candidatos de nombres de archivos basados en el ID devuelto por Scheme
+        candidatos = [
+            f"{personaje_id}.png",
+            f"{personaje_id.capitalize()}.png",
+            f"{personaje_id.lower()}.png",
+            f"{personaje_id.title()}.png"
+        ]
+        
+        # Casos especiales en español/inglés si el ID difiere
+        id_lower = personaje_id.lower()
+        if id_lower in ["enano", "dwarf"]:
+            candidatos.insert(0, "Enano.png")
+
+        for nombre_archivo in candidatos:
+            ruta_img = os.path.abspath(os.path.join(carpeta_imgs, nombre_archivo))
+            if os.path.exists(ruta_img):
+                try:
+                    pil_img = Image.open(ruta_img).resize((110, 110), Image.Resampling.LANCZOS)
+                    return ImageTk.PhotoImage(pil_img)
+                except Exception:
+                    continue
+                    
+        return None
+
     def mostrar(self, entidad, confianza, explicacion):
         if entidad:
             nombre_limpio = entidad.replace("-", " ").title()
             texto = f"🎉 ¡He pensado en {nombre_limpio}!\n(Confianza: {confianza:.1f}%)"
             
-            # Cargar imagen desde images/ con el nombre exacto de la entidad
-            ruta_img = os.path.abspath(os.path.join(os.path.dirname(__file__), "images", f"{entidad}.png"))
-            if os.path.exists(ruta_img):
-                try:
-                    pil_img = Image.open(ruta_img).resize((110, 110), Image.Resampling.LANCZOS)
-                    self.img_tk = ImageTk.PhotoImage(pil_img)
-                    self.lbl_imagen.config(image=self.img_tk)
-                except Exception:
-                    self.lbl_imagen.config(image="")
+            # Cargar imagen de forma robusta
+            self.img_tk = self._cargar_imagen_segura(entidad)
+            if self.img_tk:
+                self.lbl_imagen.config(image=self.img_tk)
             else:
                 self.lbl_imagen.config(image="")
 
@@ -94,8 +120,8 @@ class ResultView(tk.Frame):
             self.lbl_resultado.config(text=texto)
         else:
             self.lbl_imagen.config(image="")
-            self.lbl_resultado.config(text="😢 No pude identificar con certeza al personaje o se agotó el límite de preguntas.")
+            self.lbl_resultado.config(text="No pude identificar con certeza al personaje o se agotó el límite de preguntas.")
 
     def limpiar(self):
         self.lbl_imagen.config(image="")
-        self.lbl_resultado.config(text="")
+        self.lbl_resultado.config(text="") 
