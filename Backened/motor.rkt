@@ -348,9 +348,19 @@
 ; (se calcula al cargar el archivo, no en cada pregunta).
 (define base-con-reglas (aplicar-reglas-a-base conocimiento reglas))
 
-(define umbral-confianza 0.5)
+(define umbral-confianza 0.55)
 (define umbral-incertidumbre 0.3)
 (define maximo-preguntas 15)
+
+; minimo-preguntas: no se permite dar veredicto (por alta que sea
+; la confianza calculada) antes de haber hecho al menos esta
+; cantidad de preguntas. Esto evita el caso de un EMPATE
+; temprano: con muy pocas respuestas, varios candidatos distintos
+; pueden quedar con el mismo puntaje exacto, y la formula de
+; confianza da matematicamente 0.5 (mitad y mitad) -- que cruzaria
+; el umbral por pura coincidencia numerica, no porque el sistema
+; realmente identifico a alguien.
+(define minimo-preguntas 12)
 
 ; inferir: recibe el historial de respuestas y de preguntas ya
 ; hechas, y decide si hay veredicto o cual es la siguiente
@@ -371,7 +381,7 @@
       (else
         (let ((confianza (calcular-confianza candidatos)))
           (cond
-            ((>= confianza umbral-confianza)
+            ((and (>= confianza umbral-confianza) (>= num-respondidas minimo-preguntas))
               (list 'veredicto (car (mejor-candidato candidatos)) confianza))
             ((and (>= num-respondidas maximo-preguntas) (< confianza umbral-incertidumbre))
               (list 'veredicto 'ninguno confianza))

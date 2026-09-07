@@ -317,8 +317,8 @@
       (trabaja-en-saloon no) (es-forastero si) (le-gusta-cocinar no)
       (usa-silla-de-ruedas no) (es-magico-o-misterioso si))
 
-    (la-enana
-      (es-npc si) (es-soltero no) (es-mujer si)
+    (enano
+      (es-npc si) (es-soltero no) (es-mujer no)
       (es-nino no) (es-anciano no) (vive-en-la-montana no)
       (tiene-tienda si) (le-gusta-pescar no) (le-gusta-mineria si)
       (le-gusta-arte no) (cria-animales no) (trabaja-en-medicina no)

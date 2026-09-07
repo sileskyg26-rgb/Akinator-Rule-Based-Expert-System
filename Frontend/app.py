@@ -75,7 +75,7 @@ class StardewAkinatorApp:
             "trabaja-en-joja": "¿Trabaja para la Corporación Joja?",
             "le-gusta-pescar": "¿Tiene la pesca como afición u oficio marcado?",
             "le-gusta-mineria": "¿Le gusta explorar las minas o trabajar con minerales?",
-            "le-gusta-arte": "¿Practica música, pintura, escritura o artesanía?",
+            "le-gusta-arte": "¿Practica música, costurería, pintura, fotografía, escritura o artesanía?",
             "cria-animales": "¿Cría o cuida animales de granja?",
             "trabaja-en-medicina": "¿Trabaja en la clínica del pueblo (médico/enfermera)?",
             "esta-casado": "¿Está casado o casada dentro del pueblo?",
