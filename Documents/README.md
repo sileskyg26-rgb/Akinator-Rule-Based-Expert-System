@@ -50,7 +50,7 @@ pip install Pillow
 2. Abre una terminal y colócate en la raíz del proyecto.
 3. Ejecuta el script principal de Python para levantar la interfaz y conectar automáticamente el backend de Scheme:
 ```bash
-python frontend/app_2.py
+python Frontend/app.py
 
 ```
 
