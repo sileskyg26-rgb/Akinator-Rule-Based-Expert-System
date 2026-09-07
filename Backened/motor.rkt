@@ -243,16 +243,40 @@
   (+ (abs (- (contar-si caracteristica entidades) (contar-no caracteristica entidades)))
      (contar-desconocido caracteristica entidades)))
 
-(define (mejor-caracteristica caracteristicas entidades-activas)
+; ------------------------------------------------------------
+; mejor-caracteristica: en vez de elegir siempre la UNICA mejor
+; (lo cual hace que la primera pregunta de cada partida sea
+; siempre identica), junta TODAS las caracteristicas cuyo
+; balance este cerca del minimo (dentro de 'margen-empate') y
+; elige una al azar entre esas. Le da variedad a las partidas sin
+; sacrificar calidad, porque solo se sortea entre las mejores.
+; ------------------------------------------------------------
+(define margen-empate 2)
+
+(define (balance-minimo caracteristicas entidades-activas)
   (cond
-    ((null? caracteristicas) #f)
-    ((null? (cdr caracteristicas)) (car caracteristicas))
-    (else
-      (let* ((actual (car caracteristicas))
-             (resto (mejor-caracteristica (cdr caracteristicas) entidades-activas)))
-        (if (<= (balance actual entidades-activas) (balance resto entidades-activas))
-            actual
-            resto)))))
+    ((null? caracteristicas) +inf.0)
+    ((null? (cdr caracteristicas)) (balance (car caracteristicas) entidades-activas))
+    (else (min (balance (car caracteristicas) entidades-activas)
+               (balance-minimo (cdr caracteristicas) entidades-activas)))))
+
+(define (caracteristicas-cercanas-al-minimo caracteristicas entidades-activas minimo)
+  (cond
+    ((null? caracteristicas) '())
+    ((<= (balance (car caracteristicas) entidades-activas) (+ minimo margen-empate))
+      (cons (car caracteristicas)
+            (caracteristicas-cercanas-al-minimo (cdr caracteristicas) entidades-activas minimo)))
+    (else (caracteristicas-cercanas-al-minimo (cdr caracteristicas) entidades-activas minimo))))
+
+(define (elegir-al-azar lista)
+  (list-ref lista (random (length lista))))
+
+(define (mejor-caracteristica caracteristicas entidades-activas)
+  (if (null? caracteristicas)
+      #f
+      (let* ((minimo (balance-minimo caracteristicas entidades-activas))
+             (mejores (caracteristicas-cercanas-al-minimo caracteristicas entidades-activas minimo)))
+        (elegir-al-azar mejores))))
 
 ; ------------------------------------------------------------
 ; DESCARTE PERMANENTE
@@ -324,8 +348,8 @@
 ; (se calcula al cargar el archivo, no en cada pregunta).
 (define base-con-reglas (aplicar-reglas-a-base conocimiento reglas))
 
-(define umbral-confianza 0.6)
-(define umbral-incertidumbre 0.4)
+(define umbral-confianza 0.5)
+(define umbral-incertidumbre 0.3)
 (define maximo-preguntas 15)
 
 ; inferir: recibe el historial de respuestas y de preguntas ya
