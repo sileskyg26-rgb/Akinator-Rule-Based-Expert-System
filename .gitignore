@@ -9,6 +9,9 @@ __pycache__/
 *$py.class
 *.so
 .Python
+.coverage
+coverage.xml
+*.egg-info/
 
 # Racket / Scheme
 compiled/

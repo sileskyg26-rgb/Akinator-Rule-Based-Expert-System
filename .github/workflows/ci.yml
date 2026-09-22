@@ -29,6 +29,10 @@ jobs:
       run: |
         python -m unittest discover -s tests -v
 
+    - name: Measure Python coverage
+      run: |
+        pytest --cov-fail-under=75
+
     - name: Check Python linting
       run: |
         ruff check .

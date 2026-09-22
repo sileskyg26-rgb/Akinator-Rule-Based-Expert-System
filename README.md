@@ -124,6 +124,22 @@ package structure.
 The application starts the Racket engine automatically. Use the **Restart Game**
 button to begin a new round without restarting the application.
 
+### Test coverage
+
+The test suite includes coverage measurement for the controller, process bridge,
+and logging configuration:
+
+```bash
+pytest --cov-fail-under=75
+```
+
+The command prints missing lines and generates `coverage.xml` for CI tooling.
+The CI pipeline requires at least 75% coverage for the covered backend-facing
+Python modules.
+Tkinter UI rendering is intentionally excluded because it requires a graphical
+session; the application startup and Python–Racket integration remain covered
+through the bridge tests.
+
 ---
 
 ## Project Structure

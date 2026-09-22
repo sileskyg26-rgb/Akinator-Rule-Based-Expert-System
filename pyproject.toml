@@ -16,6 +16,7 @@ dependencies = [
 dev = [
     "mypy>=1.10",
     "pytest>=8.0",
+    "pytest-cov>=5.0",
     "ruff>=0.6",
 ]
 
@@ -31,7 +32,15 @@ Frontend = ["images/*.png", "images/*.gif"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-addopts = "-ra"
+addopts = "-ra --cov=Frontend.game_controller --cov=Frontend.scheme_bridge --cov=Frontend.logging_config --cov-report=term-missing --cov-report=xml"
+
+[tool.coverage.run]
+branch = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "if __name__ == .__main__.:",
+]
 
 [tool.ruff]
 line-length = 88
