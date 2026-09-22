@@ -5,7 +5,7 @@
 ![Python](https://img.shields.io/badge/Python-3.x-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![Racket](https://img.shields.io/badge/Racket-Scheme-9F1D20?style=for-the-badge&logo=racket&logoColor=white)
 ![Tkinter](https://img.shields.io/badge/GUI-Tkinter-orange?style=for-the-badge)
-![Status](https://img.shields.io/badge/Status-Completed-success?style=for-the-badge)
+![Status](https://img.shields.io/badge/Status-Portfolio%20Project-blue?style=for-the-badge)
 
 ---
 
@@ -14,6 +14,10 @@
 <p align="center">
   <img src="Frontend/images/Display.gif" alt="Application Demo" width="600">
 </p>
+
+Static preview:
+
+![Static application preview](Frontend/images/Display.png)
 
 ---
 
@@ -113,6 +117,9 @@ Install the following software:
 
 Racket must be available on the system `PATH`, or installed in one of the standard
 Windows locations searched by [`Frontend/scheme_bridge.py`](Frontend/scheme_bridge.py).
+The CI workflow currently uses the stable Racket distribution. The exact minimum
+Racket version is intentionally not hard-coded until it is validated against the
+same runtime on every supported operating system.
 
 ### Clone the repository
 
@@ -328,6 +335,8 @@ runtime sequence, and failure handling, is available in
 
 - The game is currently a desktop application and requires Python, Tkinter, and
   Racket to be installed locally.
+- The packaged Windows executable also requires Racket because the inference
+  engine runs as a separate process.
 - Statistics are kept for the current application session only.
 - The knowledge base is maintained as Racket source data rather than through an
   external database or editor.

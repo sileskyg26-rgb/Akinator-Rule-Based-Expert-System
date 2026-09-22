@@ -150,7 +150,7 @@ class ResultView(tk.Frame):
     def mostrar(self, entidad, confianza, explicacion):
         if entidad:
             nombre_limpio = entidad.replace("-", " ").title()
-            texto = f"🎉 ¡He pensado en {nombre_limpio}!\n(Confianza: {confianza:.1f}%)"
+            texto = f"He pensado en {nombre_limpio}.\n(Confianza: {confianza:.1f}%)"
 
             # Cargar imagen de forma robusta
             self.img_tk = self._cargar_imagen_segura(entidad)

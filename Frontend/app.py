@@ -45,7 +45,7 @@ class StardewAkinatorApp:
 
         tk.Label(
             titulo_frame,
-            text="🌾 Akinator: Stardew Valley 🌾",
+            text="Akinator: Stardew Valley",
             font=("Georgia", 18, "bold"),
             bg="#3e2723",
             fg=StardewTheme.TEXT_LIGHT,
@@ -78,7 +78,7 @@ class StardewAkinatorApp:
 
         tk.Button(
             footer_frame,
-            text="🔄 Reiniciar Partida",
+            text="Reiniciar partida",
             font=("Arial", 10, "bold"),
             bg=StardewTheme.BTN_BROWN,
             fg="white",
