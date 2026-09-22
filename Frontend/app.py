@@ -1,5 +1,9 @@
 import tkinter as tk
 from tkinter import messagebox
+from pathlib import Path
+from typing import Optional
+
+from PIL import Image, ImageTk
 
 if __package__ in (None, ""):
     from Frontend.game_controller import GameController
@@ -18,10 +22,13 @@ logger = configurar_logging()
 class StardewAkinatorApp:
     def __init__(self, root):
         self.root = root
+        self._background_image: Optional[ImageTk.PhotoImage] = None
+        self.background_label: Optional[tk.Label] = None
         self.root.title("Akinator: Stardew Valley Edition")
         self.root.geometry("780x680")
-        self.root.config(bg=StardewTheme.BG_WOOD)
+        self.root.config(bg=StardewTheme.BG_NIGHT)
         self.root.resizable(False, False)
+        self._configurar_fondo()
         logger.info("Aplicación gráfica iniciada.")
 
         # Inicialización de dependencias (Principios SOLID / Modularidad)
@@ -38,21 +45,41 @@ class StardewAkinatorApp:
         self._construir_interfaz()
         self.iniciar_juego()
 
+    def _configurar_fondo(self):
+        ruta_fondo = Path(__file__).resolve().parent / "images" / "Background.jpg"
+        try:
+            imagen = Image.open(ruta_fondo).convert("RGB")
+            imagen = imagen.resize((780, 680), Image.Resampling.LANCZOS)
+            self._background_image = ImageTk.PhotoImage(imagen)
+            self.background_label = tk.Label(
+                self.root,
+                image=self._background_image,
+                borderwidth=0,
+                highlightthickness=0,
+            )
+            self.background_label.place(x=0, y=0, relwidth=1, relheight=1)
+        except (OSError, ValueError) as error:
+            logger.warning("No se pudo cargar el fondo %s: %s", ruta_fondo, error)
+            self._background_image = None
+            self.background_label = None
+
     def _construir_interfaz(self):
         # Título superior
-        titulo_frame = tk.Frame(self.root, bg="#3e2723", bd=4, relief="ridge")
+        titulo_frame = tk.Frame(
+            self.root, bg=StardewTheme.BG_PANEL, bd=3, relief="ridge"
+        )
         titulo_frame.pack(fill="x", padx=20, pady=15)
 
         tk.Label(
             titulo_frame,
             text="Akinator: Stardew Valley",
             font=("Georgia", 18, "bold"),
-            bg="#3e2723",
+            bg=StardewTheme.BG_PANEL,
             fg=StardewTheme.TEXT_LIGHT,
         ).pack(pady=8)
 
         # Contenedor central modular
-        self.container_principal = tk.Frame(self.root, bg=StardewTheme.BG_WOOD)
+        self.container_principal = tk.Frame(self.root, bg=StardewTheme.BG_TRANSPARENT)
         self.container_principal.pack(fill="both", expand=True, padx=20, pady=5)
 
         self.question_view = QuestionView(
@@ -64,14 +91,14 @@ class StardewAkinatorApp:
         # Se empaquetará solo al finalizar la partida
 
         # Pie de página / Estadísticas y controles
-        footer_frame = tk.Frame(self.root, bg=StardewTheme.BG_WOOD)
+        footer_frame = tk.Frame(self.root, bg=StardewTheme.BG_PANEL)
         footer_frame.pack(fill="x", padx=20, pady=10)
 
         self.lbl_stats = tk.Label(
             footer_frame,
             text=self.controller.obtener_estadisticas(),
             font=("Arial", 10),
-            bg=StardewTheme.BG_WOOD,
+            bg=StardewTheme.BG_PANEL,
             fg="#d7ccc8",
         )
         self.lbl_stats.pack(side="left")

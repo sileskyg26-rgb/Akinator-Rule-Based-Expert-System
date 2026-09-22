@@ -30,7 +30,7 @@ stardew-akinator = "Frontend.app:main"
 include = ["Frontend*"]
 
 [tool.setuptools.package-data]
-Frontend = ["images/*.png", "images/*.gif"]
+Frontend = ["images/*.png", "images/*.gif", "images/*.jpg"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

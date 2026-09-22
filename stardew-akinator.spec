@@ -7,7 +7,9 @@ from PyInstaller.utils.hooks import collect_data_files
 root = Path(SPEC).parent
 datas = [
     (str(root / "Backend"), "Backend"),
-    *collect_data_files("Frontend", includes=["images/*.png", "images/*.gif"]),
+    *collect_data_files(
+        "Frontend", includes=["images/*.png", "images/*.gif", "images/*.jpg"]
+    ),
 ]
 
 a = Analysis(

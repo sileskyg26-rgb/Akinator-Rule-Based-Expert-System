@@ -10,6 +10,9 @@ logger = logging.getLogger("stardew_akinator.ui")
 
 class StardewTheme:
     BG_WOOD = "#2c1e11"
+    BG_NIGHT = "#101b3d"
+    BG_PANEL = "#241a2f"
+    BG_TRANSPARENT = "#101b3d"
     PANEL_PARCHMENT = "#f4e3c1"
     TEXT_DARK = "#212121"
     TEXT_LIGHT = "#ffecb3"
