@@ -14,11 +14,6 @@
 <p align="center">
   <img src="Frontend/images/Display.gif" alt="Application Demo" width="600">
 </p>
-
-Static preview:
-
-![Static application preview](Frontend/images/Display.png)
-
 ---
 
 ## How It Works (Architecture)
