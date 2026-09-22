@@ -72,6 +72,13 @@ The existing `unittest` suite can be run with:
 python -m unittest discover -s tests -v
 ```
 
+The end-to-end bridge test requires Racket and validates the real
+Python-to-Racket JSON exchange:
+
+```bash
+python -m unittest tests.test_integration_bridge -v
+```
+
 Quality checks can be run locally with:
 
 ```bash

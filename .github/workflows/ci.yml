@@ -55,3 +55,7 @@ jobs:
     - name: Run Racket backend tests
       run: |
         racket Backend/tests/test-motor.rkt
+
+    - name: Run Python-Racket integration tests
+      run: |
+        python -m unittest tests.test_integration_bridge -v

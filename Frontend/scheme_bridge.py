@@ -245,3 +245,7 @@ class SchemeBridge:
             ) from error
         else:
             logger.info("Motor Scheme cerrado.")
+        finally:
+            for stream in (proceso.stdin, proceso.stdout, proceso.stderr):
+                if stream is not None:
+                    stream.close()
