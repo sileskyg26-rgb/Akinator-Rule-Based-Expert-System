@@ -54,6 +54,43 @@ an explanation containing the matching characteristics.
 
 ---
 
+## Portfolio Evidence
+
+This project demonstrates more than a graphical prototype. It provides evidence
+of the following engineering practices:
+
+| Area | Evidence in the repository |
+| --- | --- |
+| Architecture | Python/Tkinter presentation layer separated from the Racket inference engine |
+| Integration | Real JSON Lines communication test between Python and Racket |
+| Reliability | Bridge timeout, process termination, invalid JSON, stderr capture, and restart handling |
+| Data quality | Automated validation of duplicate entities, characteristics, values, images, and contradictions |
+| Explainability | Confidence score and matching characteristics returned with each verdict |
+| Testing | Python unit tests, end-to-end integration tests, and Racket `rackunit` tests |
+| Maintainability | Typed Python modules, Ruff checks, reproducible packaging, and a versioned protocol |
+| Automation | GitHub Actions runs tests, coverage, linting, formatting, type checking, and Racket validation |
+
+### Main design decisions
+
+- **Two-language boundary:** Racket keeps the rule engine and knowledge
+  representation close to the functional-programming requirements, while Python
+  handles the desktop interface and operating-system process management.
+- **Explicit protocol:** JSON Lines with `version: 1` makes the process boundary
+  testable and allows future protocol changes to be introduced deliberately.
+- **Failure visibility:** communication failures raise explicit exceptions and are
+  logged instead of being converted into a false game result.
+- **Focused scope:** the project intentionally remains a desktop expert system;
+  it does not add an unnecessary web API, database, authentication layer, or
+  deployment stack.
+
+The most relevant files for reviewing the implementation are
+[`Frontend/scheme_bridge.py`](Frontend/scheme_bridge.py),
+[`Frontend/game_controller.py`](Frontend/game_controller.py),
+[`Backend/motor.rkt`](Backend/motor.rkt), and
+[`Backend/validador.rkt`](Backend/validador.rkt).
+
+---
+
 ## Technologies and Tools
 
 - **Languages:** Python 3 and Racket/Scheme.
@@ -92,7 +129,7 @@ cd Sistema-Experto-Basado-en-Reglas-tipo-Akinator
 py -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
-python -m pip install Pillow
+python -m pip install -e ".[dev]"
 ```
 
 #### Linux or macOS
@@ -101,7 +138,7 @@ python -m pip install Pillow
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
-python -m pip install Pillow
+python -m pip install -e ".[dev]"
 ```
 
 ### Run the application
@@ -169,6 +206,7 @@ The frontend sends one JSON object per line to the Racket process:
 
 ```json
 {
+  "version": 1,
   "accion": "inferir",
   "respuestas": [["es-mujer", "si"], ["es-nino", "no"]],
   "preguntadas": ["es-mujer", "es-nino"]
@@ -179,6 +217,7 @@ The backend responds with a question:
 
 ```json
 {
+  "version": 1,
   "tipo": "pregunta",
   "caracteristica": "le-gusta-mineria",
   "candidatos": 8
@@ -189,6 +228,7 @@ Or with a verdict:
 
 ```json
 {
+  "version": 1,
   "tipo": "veredicto",
   "entidad": "abigail",
   "confianza": 0.83,
@@ -225,6 +265,16 @@ racket Backend/tests/test-motor.rkt
 The test suite uses Racket's built-in `rackunit` library and validates the
 knowledge base, rule application, inference questions, explanations, and reset
 behavior.
+
+To run the complete Python quality gate locally:
+
+```bash
+python -m unittest discover -s tests -v
+pytest --cov-fail-under=75
+ruff check .
+ruff format --check .
+mypy Frontend tests
+```
 
 ---
 
