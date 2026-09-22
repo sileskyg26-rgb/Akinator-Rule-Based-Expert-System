@@ -11,24 +11,35 @@ logger = logging.getLogger("stardew_akinator.ui")
 class StardewTheme:
     BG_WOOD = "#2c1e11"
     BG_NIGHT = "#101b3d"
-    BG_PANEL = "#241a2f"
+    BG_PANEL = "#182447"
     BG_TRANSPARENT = "#101b3d"
-    PANEL_PARCHMENT = "#f4e3c1"
-    TEXT_DARK = "#212121"
-    TEXT_LIGHT = "#ffecb3"
-    BTN_GREEN = "#4caf50"
-    BTN_LIGHT_GREEN = "#8bc34a"
-    BTN_ORANGE = "#ff9800"
-    BTN_RED = "#ff5722"
-    BTN_DARK_RED = "#f44336"
-    BTN_BROWN = "#795548"
+    PANEL_CARD = "#203158"
+    PANEL_BORDER = "#6a82b8"
+    PANEL_PARCHMENT = "#203158"
+    TEXT_DARK = "#edf4ff"
+    TEXT_MUTED = "#b7c9e8"
+    TEXT_LIGHT = "#fff4c2"
+    BTN_GREEN = "#3f9f72"
+    BTN_LIGHT_GREEN = "#5eae83"
+    BTN_ORANGE = "#c58a48"
+    BTN_RED = "#b95d68"
+    BTN_DARK_RED = "#984653"
+    BTN_BROWN = "#35527f"
 
 
 class QuestionView(tk.Frame):
     """Componente modular para mostrar la pregunta y opciones de respuesta temáticas."""
 
     def __init__(self, parent, on_answer_callback: Callable[[str], None]):
-        super().__init__(parent, bg=StardewTheme.PANEL_PARCHMENT, bd=5, relief="solid")
+        super().__init__(
+            parent,
+            bg=StardewTheme.PANEL_CARD,
+            bd=2,
+            relief="groove",
+            highlightbackground=StardewTheme.PANEL_BORDER,
+            highlightcolor=StardewTheme.PANEL_BORDER,
+            highlightthickness=1,
+        )
         self.on_answer_callback = on_answer_callback
         self._construir_widgets()
 
@@ -37,8 +48,8 @@ class QuestionView(tk.Frame):
             self,
             text="",
             font=("Arial", 11, "italic"),
-            bg=StardewTheme.PANEL_PARCHMENT,
-            fg="#5d4037",
+            bg=StardewTheme.PANEL_CARD,
+            fg=StardewTheme.TEXT_MUTED,
         )
         self.lbl_estado.pack(pady=10)
 
@@ -46,14 +57,14 @@ class QuestionView(tk.Frame):
             self,
             text="",
             font=("Georgia", 15, "bold"),
-            bg=StardewTheme.PANEL_PARCHMENT,
+            bg=StardewTheme.PANEL_CARD,
             fg=StardewTheme.TEXT_DARK,
             wraplength=650,
             justify="center",
         )
         self.lbl_pregunta.pack(pady=20, padx=20)
 
-        self.botones_frame = tk.Frame(self, bg=StardewTheme.PANEL_PARCHMENT)
+        self.botones_frame = tk.Frame(self, bg=StardewTheme.PANEL_CARD)
         self.botones_frame.pack(pady=20)
 
         opciones = [
@@ -74,11 +85,15 @@ class QuestionView(tk.Frame):
                 text=texto,
                 font=("Arial", 10, "bold"),
                 bg=color,
-                fg="white",
+                fg="#f7fbff",
                 width=14,
                 height=2,
-                bd=3,
-                relief="raised",
+                bd=0,
+                relief="flat",
+                activebackground=StardewTheme.PANEL_BORDER,
+                activeforeground="#ffffff",
+                cursor="hand2",
+                padx=4,
                 command=responder,
             )
             btn.pack(side="left", padx=4)
@@ -93,19 +108,27 @@ class ResultView(tk.Frame):
     """Componente modular para mostrar el resultado, imagen del personaje y explicabilidad."""
 
     def __init__(self, parent):
-        super().__init__(parent, bg=StardewTheme.PANEL_PARCHMENT)
+        super().__init__(
+            parent,
+            bg=StardewTheme.PANEL_CARD,
+            bd=2,
+            relief="groove",
+            highlightbackground=StardewTheme.PANEL_BORDER,
+            highlightcolor=StardewTheme.PANEL_BORDER,
+            highlightthickness=1,
+        )
         self.img_tk = None
         self._construir_widgets()
 
     def _construir_widgets(self):
-        self.lbl_imagen = tk.Label(self, bg=StardewTheme.PANEL_PARCHMENT)
+        self.lbl_imagen = tk.Label(self, bg=StardewTheme.PANEL_CARD)
         self.lbl_imagen.pack(pady=5)
 
         self.lbl_resultado = tk.Label(
             self,
             text="",
             font=("Georgia", 14, "bold"),
-            bg=StardewTheme.PANEL_PARCHMENT,
+            bg=StardewTheme.PANEL_CARD,
             fg=StardewTheme.TEXT_DARK,
             justify="center",
         )

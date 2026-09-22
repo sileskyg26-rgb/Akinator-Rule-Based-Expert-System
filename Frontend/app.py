@@ -66,7 +66,11 @@ class StardewAkinatorApp:
     def _construir_interfaz(self):
         # Título superior
         titulo_frame = tk.Frame(
-            self.root, bg=StardewTheme.BG_PANEL, bd=3, relief="ridge"
+            self.root,
+            bg=StardewTheme.BG_PANEL,
+            bd=0,
+            highlightthickness=1,
+            highlightbackground=StardewTheme.PANEL_BORDER,
         )
         titulo_frame.pack(fill="x", padx=20, pady=15)
 
@@ -91,7 +95,13 @@ class StardewAkinatorApp:
         # Se empaquetará solo al finalizar la partida
 
         # Pie de página / Estadísticas y controles
-        footer_frame = tk.Frame(self.root, bg=StardewTheme.BG_PANEL)
+        footer_frame = tk.Frame(
+            self.root,
+            bg=StardewTheme.BG_PANEL,
+            bd=0,
+            highlightthickness=1,
+            highlightbackground=StardewTheme.PANEL_BORDER,
+        )
         footer_frame.pack(fill="x", padx=20, pady=10)
 
         self.lbl_stats = tk.Label(
