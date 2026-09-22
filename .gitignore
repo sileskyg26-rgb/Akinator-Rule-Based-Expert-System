@@ -20,3 +20,8 @@ compiled/
 Thumbs.db
 .vscode/
 .idea/
+
+# Logs de ejecución (no versionar datos reales)
+logs/*.log
+logs/*.log.*
+!logs/.gitkeep

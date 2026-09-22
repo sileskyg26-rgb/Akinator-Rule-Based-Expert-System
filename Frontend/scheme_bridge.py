@@ -1,12 +1,15 @@
 import subprocess
 import json
+import logging
 import os
 import queue
 import shutil
 import threading
+import time
 
 PROTOCOL_VERSION = 1
 DEFAULT_TIMEOUT_SECONDS = 5.0
+logger = logging.getLogger("stardew_akinator.scheme_bridge")
 
 def _encontrar_racket():
     """Busca automáticamente el ejecutable de Racket en el sistema o rutas comunes de Windows."""
@@ -78,7 +81,9 @@ class SchemeBridge:
                 daemon=True,
                 name="scheme-stderr-reader",
             ).start()
+            logger.info("Motor Scheme iniciado (pid=%s).", self.proc.pid)
         except Exception as e:
+            logger.exception("No se pudo iniciar el motor Scheme.")
             raise RuntimeError(f"Error crítico al iniciar el backend de Scheme: {e}")
 
     def _leer_stdout(self):
@@ -86,17 +91,18 @@ class SchemeBridge:
             for linea in iter(self.proc.stdout.readline, ""):
                 self._stdout_queue.put(linea)
         except (OSError, ValueError):
-            pass
+            logger.debug("La lectura de stdout terminó durante el cierre del motor.")
         finally:
             self._stdout_queue.put(None)
 
     def _leer_stderr(self):
         try:
             for linea in iter(self.proc.stderr.readline, ""):
+                logger.warning("stderr del motor Scheme: %s", linea.rstrip())
                 with self._stderr_lock:
                     self._stderr_lines.append(linea.rstrip())
         except (OSError, ValueError):
-            pass
+            logger.debug("La lectura de stderr terminó durante el cierre del motor.")
 
     def _obtener_stderr(self):
         with self._stderr_lock:
@@ -116,15 +122,22 @@ class SchemeBridge:
 
     def enviar_mensaje(self, accion: dict) -> dict:
         if not self.proc or self.proc.poll() is not None:
+            logger.error(
+                "Se intentó enviar un mensaje con el motor inactivo. Detalle: %s",
+                self._obtener_stderr(),
+            )
             raise ConnectionError(
                 f"El proceso de Scheme no está activo. Error: {self._obtener_stderr()}"
             )
 
         try:
             mensaje = json.dumps(accion)
+            logger.debug("Mensaje enviado al motor: %s", mensaje)
+            inicio = time.perf_counter()
             self.proc.stdin.write(mensaje + "\n")
             self.proc.stdin.flush()
         except (BrokenPipeError, OSError) as error:
+            logger.exception("Falló el envío de un mensaje al motor.")
             raise ConnectionError(
                 f"No se pudo enviar el mensaje al backend de Scheme: {error}. "
                 f"Detalle: {self._obtener_stderr()}"
@@ -134,12 +147,17 @@ class SchemeBridge:
         try:
             respuesta_linea = self._stdout_queue.get(timeout=self.timeout)
         except queue.Empty as error:
+            logger.error(
+                "Timeout esperando respuesta del motor después de %.3f segundos.",
+                self.timeout,
+            )
             raise TimeoutError(
                 f"El backend de Scheme no respondió en {self.timeout:g} segundos. "
                 f"Detalle: {self._obtener_stderr()}"
             ) from error
 
         if respuesta_linea is None or not respuesta_linea.strip():
+            logger.error("El motor cerró stdout sin devolver una respuesta.")
             raise ConnectionError(
                 "El backend de Scheme cerró la salida sin responder. "
                 f"Detalle: {self._obtener_stderr()}"
@@ -148,26 +166,37 @@ class SchemeBridge:
         try:
             respuesta = json.loads(respuesta_linea)
         except json.JSONDecodeError as error:
+            logger.error("El motor devolvió JSON inválido: %s", respuesta_linea.rstrip())
             raise ValueError(
                 f"El backend devolvió JSON inválido: {error.msg}. "
                 f"Detalle: {self._obtener_stderr()}"
             ) from error
 
         if respuesta.get("version") != PROTOCOL_VERSION:
+            logger.error("Versión de protocolo incompatible recibida: %s", respuesta.get("version"))
             raise ValueError(
                 f"Versión de protocolo incompatible: "
                 f"{respuesta.get('version')!r}; se esperaba {PROTOCOL_VERSION}."
             )
+        logger.debug(
+            "Respuesta recibida del motor en %.3f segundos: %s",
+            time.perf_counter() - inicio,
+            respuesta_linea.rstrip(),
+        )
+        if respuesta.get("tipo") == "error":
+            logger.error("Error de protocolo recibido: %s", respuesta.get("mensaje"))
         return respuesta
 
     def reiniciar(self):
         """Cierra el proceso actual y arranca una instancia limpia del motor."""
+        logger.info("Reinicio solicitado para el motor Scheme.")
         self.cerrar()
         self._iniciar_proceso()
 
     def cerrar(self):
         proceso = self.proc
         if not proceso:
+            logger.debug("Cierre solicitado sin un proceso Scheme activo.")
             return
 
         self.proc = None
@@ -179,7 +208,11 @@ class SchemeBridge:
                 except subprocess.TimeoutExpired:
                     proceso.kill()
                     proceso.wait(timeout=self.timeout)
+                    logger.warning("El motor Scheme requirió cierre forzado.")
         except (OSError, subprocess.TimeoutExpired) as error:
+            logger.exception("No se pudo cerrar correctamente el motor Scheme.")
             raise ConnectionError(
                 f"No se pudo cerrar correctamente el backend de Scheme: {error}"
             ) from error
+        else:
+            logger.info("Motor Scheme cerrado.")

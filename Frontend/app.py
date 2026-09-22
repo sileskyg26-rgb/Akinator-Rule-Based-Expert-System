@@ -9,6 +9,9 @@ sys.path.append(os.path.dirname(__file__))
 from scheme_bridge import SchemeBridge
 from game_controller import GameController
 from ui_components import StardewTheme, QuestionView, ResultView
+from logging_config import configurar_logging
+
+logger = configurar_logging()
 
 class StardewAkinatorApp:
     def __init__(self, root):
@@ -17,11 +20,13 @@ class StardewAkinatorApp:
         self.root.geometry("780x680")
         self.root.config(bg=StardewTheme.BG_WOOD)
         self.root.resizable(False, False)
+        logger.info("Aplicación gráfica iniciada.")
 
         # Inicialización de dependencias (Principios SOLID / Modularidad)
         try:
             self.bridge = SchemeBridge()
         except Exception as e:
+            logger.exception("No se pudo inicializar la aplicación.")
             messagebox.showerror("Error", str(e))
             self.root.destroy()
             return
@@ -141,6 +146,7 @@ class StardewAkinatorApp:
         self.iniciar_juego()
 
     def cerrar(self):
+        logger.info("Cierre de la aplicación solicitado.")
         self.bridge.cerrar()
         self.root.destroy()
 

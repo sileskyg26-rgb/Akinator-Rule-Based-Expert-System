@@ -1,6 +1,9 @@
 import tkinter as tk
+import logging
 import os
 from PIL import Image, ImageTk
+
+logger = logging.getLogger("stardew_akinator.ui")
 
 class StardewTheme:
     BG_WOOD = "#2c1e11"
@@ -92,10 +95,14 @@ class ResultView(tk.Frame):
             if os.path.exists(ruta_img):
                 try:
                     pil_img = Image.open(ruta_img).resize((110, 110), Image.Resampling.LANCZOS)
+                    logger.debug("Imagen cargada para %s desde %s.", personaje_id, ruta_img)
                     return ImageTk.PhotoImage(pil_img)
-                except Exception:
+                except (OSError, ValueError) as error:
+                    logger.warning(
+                        "No se pudo cargar la imagen %s: %s", ruta_img, error
+                    )
                     continue
-                    
+        logger.warning("No se encontró imagen para el personaje %s.", personaje_id)
         return None
 
     def mostrar(self, entidad, confianza, explicacion):

@@ -66,3 +66,18 @@ The current protocol version is `1`. See the complete contract in
 The process bridge also applies a read timeout, captures backend diagnostics
 from `stderr`, reports malformed responses, and supports clean shutdown and
 explicit motor restart through `SchemeBridge.reiniciar()`.
+
+## Logging
+
+The application writes rotating logs to `logs/stardew-akinator.log`. The
+directory is intentionally kept in the repository only through
+`logs/.gitkeep`; generated log contents are ignored by Git. Logging includes
+motor lifecycle events, protocol messages, response time, communication
+errors, image-loading failures, and per-game question counts.
+
+The log level defaults to `INFO` and can be changed without editing code:
+
+```powershell
+$env:STARDEW_AKINATOR_LOG_LEVEL = "DEBUG"
+python -m Frontend.app
+```
