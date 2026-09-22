@@ -43,3 +43,16 @@ The project implements a **hybrid architecture** that combines the power of func
 Make sure you have the following installed on your system:
 * [Python](https://www.python.org/) (version 3.x recommended).
 * A Scheme interpreter or environment compatible with the codebase (e.g., *Racket*, *Chez Scheme*).
+
+### Validate the knowledge base
+
+The Racket validator checks entity names, feature names, allowed values,
+duplicate facts, missing characteristics, and rule references:
+
+```bash
+racket Backend/validador.rkt
+```
+
+Structural problems return a failing exit code. Missing characteristics are
+reported as warnings because the inference engine treats omitted facts as
+`desconocido`.

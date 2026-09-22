@@ -8,7 +8,7 @@
 ; ============================================================
 ;
 ; DOMINIO: Personajes (NPCs) de Stardew Valley
-; (32 entidades: 30 residentes humanos + Krobus y la Enana)
+; (31 entidades: 29 residentes humanos + Krobus y la Enana)
 ;
 ; Formato de cada entidad (igual al del enunciado):
 ;   (nombre-entidad (caracteristica-1 valor) (caracteristica-2 valor) ...)
@@ -16,7 +16,7 @@
 ; (si una caracteristica no aparece para una entidad, se asume "desconocido")
 ;
 ; ============================================================
-; LAS 20 CARACTERISTICAS USADAS (documentar en el informe tecnico)
+; LAS 21 CARACTERISTICAS USADAS (documentar en el informe tecnico)
 ; ============================================================
 ; 1.  es-npc                 -> es un personaje no jugable del pueblo
 ; 2.  es-soltero              -> es candidato de matrimonio (bachelor/bachelorette)
