@@ -196,6 +196,20 @@ Tkinter UI rendering is intentionally excluded because it requires a graphical
 session; the application startup and Python–Racket integration remain covered
 through the bridge tests.
 
+### Security checks
+
+The development toolchain includes two security checks:
+
+```bash
+pip-audit
+bandit -r Frontend -ll
+```
+
+`pip-audit` checks installed Python dependencies against published
+vulnerability advisories. Bandit scans the Python source for common insecure
+patterns. Both checks run automatically in GitHub Actions and fail the build
+when a high-confidence issue is detected.
+
 ---
 
 ## Project Structure
