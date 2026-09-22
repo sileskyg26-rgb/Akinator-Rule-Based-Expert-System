@@ -4,6 +4,7 @@ import logging
 import os
 import queue
 import shutil
+import sys
 import threading
 import time
 
@@ -44,8 +45,11 @@ class SchemeBridge:
         self.timeout = timeout
         self.engine_path = engine_path
         # Construir la ruta absoluta basada en la ubicación real del archivo actual
-        ruta_actual = os.path.dirname(os.path.abspath(__file__))
-        ruta_raiz = os.path.dirname(ruta_actual)
+        if getattr(sys, "frozen", False):
+            ruta_raiz = getattr(sys, "_MEIPASS", os.path.dirname(sys.executable))
+        else:
+            ruta_actual = os.path.dirname(os.path.abspath(__file__))
+            ruta_raiz = os.path.dirname(ruta_actual)
         self.script_motor = os.path.join(ruta_raiz, engine_path)
 
         if not os.path.exists(self.script_motor):

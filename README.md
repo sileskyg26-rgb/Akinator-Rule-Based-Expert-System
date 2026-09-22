@@ -161,6 +161,25 @@ package structure.
 The application starts the Racket engine automatically. Use the **Restart Game**
 button to begin a new round without restarting the application.
 
+### Windows executable
+
+The repository includes a PyInstaller specification for producing a portable
+Windows executable:
+
+```powershell
+python -m pip install -e ".[dev]"
+pyinstaller --clean --noconfirm stardew-akinator.spec
+```
+
+The executable is generated at `dist/stardew-akinator.exe`. The distribution
+still requires Racket installed on the target machine because the application
+starts `Backend/motor.rkt` as a separate process. The build includes the Racket
+source and the character images, and the bridge resolves those files correctly
+when running from a frozen PyInstaller bundle.
+
+GitHub Actions also builds the archive
+`stardew-akinator-windows.zip` for manual runs and version tags such as `v1.0.0`.
+
 ### Test coverage
 
 The test suite includes coverage measurement for the controller, process bridge,
