@@ -285,6 +285,10 @@ Additional diagrams are available in [`Documents/`](Documents/):
 - [Architecture diagram](Documents/Diagrama%20de%20Arquitectura.png)
 - [Inference flow diagram](Documents/Diagrama%20de%20Flujo%20de%20Inferencia.png)
 
+The maintained architecture reference, including component responsibilities,
+runtime sequence, and failure handling, is available in
+[`docs/architecture.md`](docs/architecture.md).
+
 ---
 
 ## Known Limitations
