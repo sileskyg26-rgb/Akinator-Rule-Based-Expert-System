@@ -44,6 +44,36 @@ class SchemeBridgeIntegrationTests(unittest.TestCase):
         self.assertEqual(respuesta["tipo"], "error")
         self.assertIn("acción", respuesta["mensaje"])
 
+    def test_motor_completa_una_partida_hasta_emitir_veredicto(self):
+        respuestas: list[list[str]] = []
+        preguntadas: list[str] = []
+
+        for _ in range(30):
+            respuesta = self.bridge.enviar_mensaje(
+                {
+                    "version": PROTOCOL_VERSION,
+                    "accion": "inferir",
+                    "respuestas": respuestas,
+                    "preguntadas": preguntadas,
+                }
+            )
+
+            self.assertEqual(respuesta["version"], PROTOCOL_VERSION)
+            if respuesta["tipo"] == "veredicto":
+                self.assertIn("entidad", respuesta)
+                self.assertIn("confianza", respuesta)
+                self.assertIsInstance(respuesta["explicacion"], list)
+                return
+
+            self.assertEqual(respuesta["tipo"], "pregunta")
+            caracteristica = respuesta["caracteristica"]
+            self.assertNotIn(caracteristica, preguntadas)
+            self.assertGreater(respuesta["candidatos"], 0)
+            preguntadas.append(caracteristica)
+            respuestas.append([caracteristica, "no-se"])
+
+        self.fail("El motor no emitió un veredicto dentro del límite esperado.")
+
 
 if __name__ == "__main__":
     unittest.main()
