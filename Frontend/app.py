@@ -152,6 +152,7 @@ class StardewAkinatorApp:
         self.controller.reiniciar()
         self.result_view.pack_forget()
         self.question_view.pack(fill="both", expand=True)
+        self.question_view.actualizar_chicken("idle")
         self.siguiente_turno()
 
     def siguiente_turno(self):
@@ -168,12 +169,22 @@ class StardewAkinatorApp:
 
             texto_p = self.formatear_pregunta(caracteristica)
             estado = f"Pregunta #{num_pregunta} | Candidatos posibles: {candidatos}"
+            reaccion = "surprised" if candidatos <= 3 else "curious"
+            self.question_view.actualizar_chicken(reaccion)
             self.question_view.actualizar(texto_p, estado)
 
         elif resultado.get("tipo") == "veredicto":
             self.mostrar_veredicto(resultado)
 
     def procesar_respuesta(self, valor_respuesta):
+        if valor_respuesta == "no-se":
+            reaccion = "confused"
+        elif valor_respuesta in {"si", "probablemente"}:
+            reaccion = "happy"
+        else:
+            reaccion = "thinking"
+        self.question_view.actualizar_chicken(reaccion)
+        self.root.update_idletasks()
         self.controller.registrar_respuesta(valor_respuesta)
         self.siguiente_turno()
 
@@ -184,6 +195,7 @@ class StardewAkinatorApp:
         entidad = resultado.get("entidad")
         confianza = resultado.get("confianza", 0.0) * 100
         explicacion = resultado.get("explicacion", [])
+        self.result_view.actualizar_chicken("excited" if entidad else "sad")
 
         self.result_view.mostrar(entidad, confianza, explicacion)
 
@@ -193,6 +205,7 @@ class StardewAkinatorApp:
                 "Verificación", f"¿Es {nombre_limpio} el personaje en el que pensabas?"
             )
             self.controller.registrar_resultado(acerto)
+            self.result_view.actualizar_chicken("success" if acerto else "wrong")
         else:
             self.controller.registrar_resultado(False)
 

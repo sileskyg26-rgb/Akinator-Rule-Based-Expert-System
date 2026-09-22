@@ -1,7 +1,7 @@
 import tkinter as tk
 import logging
 import os
-from typing import Callable
+from typing import Callable, Optional
 
 from PIL import Image, ImageTk
 
@@ -41,9 +41,18 @@ class QuestionView(tk.Frame):
             highlightthickness=1,
         )
         self.on_answer_callback = on_answer_callback
+        self._chicken_image: Optional[ImageTk.PhotoImage] = None
         self._construir_widgets()
 
     def _construir_widgets(self):
+        self.lbl_chicken = tk.Label(
+            self,
+            bg=StardewTheme.PANEL_CARD,
+            borderwidth=0,
+            highlightthickness=0,
+        )
+        self.lbl_chicken.pack(pady=(14, 0))
+
         self.lbl_estado = tk.Label(
             self,
             text="",
@@ -98,6 +107,20 @@ class QuestionView(tk.Frame):
             )
             btn.pack(side="left", padx=4)
 
+    def actualizar_chicken(self, estado: str) -> None:
+        """Actualiza la reacción visual del pollo acompañante."""
+        nombre = f"Chicken_{estado}.png"
+        ruta = os.path.join(os.path.dirname(__file__), "images", nombre)
+        try:
+            imagen = Image.open(ruta).convert("RGBA")
+            imagen.thumbnail((128, 128), Image.Resampling.LANCZOS)
+            self._chicken_image = ImageTk.PhotoImage(imagen)
+            self.lbl_chicken.config(image=self._chicken_image)
+        except (OSError, ValueError) as error:
+            logger.warning(
+                "No se pudo cargar la reacción del pollo %s: %s", ruta, error
+            )
+
     def actualizar(self, texto_pregunta, estado_texto):
         self.lbl_estado.config(text=estado_texto)
         self.lbl_pregunta.config(text=texto_pregunta)
@@ -118,9 +141,18 @@ class ResultView(tk.Frame):
             highlightthickness=1,
         )
         self.img_tk = None
+        self._chicken_image: Optional[ImageTk.PhotoImage] = None
         self._construir_widgets()
 
     def _construir_widgets(self):
+        self.lbl_chicken = tk.Label(
+            self,
+            bg=StardewTheme.PANEL_CARD,
+            borderwidth=0,
+            highlightthickness=0,
+        )
+        self.lbl_chicken.pack(pady=(14, 0))
+
         self.lbl_imagen = tk.Label(self, bg=StardewTheme.PANEL_CARD)
         self.lbl_imagen.pack(pady=5)
 
@@ -133,6 +165,20 @@ class ResultView(tk.Frame):
             justify="center",
         )
         self.lbl_resultado.pack(pady=10, padx=20)
+
+    def actualizar_chicken(self, estado: str) -> None:
+        """Actualiza la reacción visual del pollo en la pantalla de resultado."""
+        nombre = f"Chicken_{estado}.png"
+        ruta = os.path.join(os.path.dirname(__file__), "images", nombre)
+        try:
+            imagen = Image.open(ruta).convert("RGBA")
+            imagen.thumbnail((128, 128), Image.Resampling.LANCZOS)
+            self._chicken_image = ImageTk.PhotoImage(imagen)
+            self.lbl_chicken.config(image=self._chicken_image)
+        except (OSError, ValueError) as error:
+            logger.warning(
+                "No se pudo cargar la reacción del pollo %s: %s", ruta, error
+            )
 
     def _cargar_imagen_segura(self, personaje_id):
         """Busca de forma flexible la imagen del personaje manejando mayúsculas y nombres especiales."""
