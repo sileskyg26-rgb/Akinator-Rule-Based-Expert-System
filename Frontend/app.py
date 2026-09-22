@@ -1,10 +1,16 @@
 import tkinter as tk
 from tkinter import messagebox
 
-from .game_controller import GameController
-from .logging_config import configurar_logging
-from .scheme_bridge import SchemeBridge
-from .ui_components import QuestionView, ResultView, StardewTheme
+if __package__ in (None, ""):
+    from Frontend.game_controller import GameController
+    from Frontend.logging_config import configurar_logging
+    from Frontend.scheme_bridge import SchemeBridge
+    from Frontend.ui_components import QuestionView, ResultView, StardewTheme
+else:
+    from .game_controller import GameController
+    from .logging_config import configurar_logging
+    from .scheme_bridge import SchemeBridge
+    from .ui_components import QuestionView, ResultView, StardewTheme
 
 logger = configurar_logging()
 

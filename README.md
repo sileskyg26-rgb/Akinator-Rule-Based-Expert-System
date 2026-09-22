@@ -112,6 +112,15 @@ Run the application from the repository root:
 python -m Frontend.app
 ```
 
+Direct execution is also supported from the repository root:
+
+```bash
+python Frontend/app.py
+```
+
+Running it as a module is still recommended because it follows the `Frontend`
+package structure.
+
 The application starts the Racket engine automatically. Use the **Restart Game**
 button to begin a new round without restarting the application.
 
