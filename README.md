@@ -1,0 +1,45 @@
+# 🌾 Stardew Akinator - Rule-Based Expert System
+
+> An Akinator-inspired character guessing expert system set in the universe of *Stardew Valley*. Developed as an academic project for the Programming Paradigms course.
+
+![Python](https://img.shields.io/badge/Python-3.x-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![Scheme](https://img.shields.io/badge/Scheme-Functional-000000?style=for-the-badge&logo=gnu&logoColor=white)
+![Tkinter](https://img.shields.io/badge/GUI-Tkinter-orange?style=for-the-badge)
+![Status](https://img.shields.io/badge/Status-Completed-success?style=for-the-badge)
+
+---
+
+## Demo
+
+<p align="center">
+  <img src="images/Display.gif" alt="Application Demo" width="600">
+</p>
+
+---
+
+## How It Works (Architecture)
+The project implements a **hybrid architecture** that combines the power of functional programming with the flexibility of procedural design for the user interface:
+
+1. **Inference Engine & Knowledge Base (Scheme):** All logic rules, the decision tree, facts, and the evaluation of characteristics for *Stardew Valley* villagers are programmed purely in Scheme, applying symbolic processing and recursion concepts.
+2. **Presentation Layer (Python / Tkinter):** A friendly, theme-tailored Graphical User Interface (GUI) that interacts with the user, captures their responses (Yes / No / Don't know), and communicates with the logical core to navigate the expert system's rules.
+
+---
+
+## Key Features
+* **Dynamic Rule Engine:** Evaluates logical conditions based on the traits and features of Pelican Town inhabitants (favorite gifts, location, profession, gender, etc.).
+* **Attractive Graphical Interface:** Built in Python using `Tkinter`, visually styled around the game's aesthetic.
+* **Inter-paradigm Communication:** Efficient integration between Scheme scripts and Python.
+* **Extensible Knowledge Base:** Rules and character profiles can be easily updated from the logical structure in Scheme.
+
+---
+
+## Technologies & Tools
+* **Languages:** Python, Scheme.
+* **Graphical Interface:** Tkinter (Python).
+* **Version Control:** Git & GitHub.
+
+---
+## Prerequisites
+Make sure you have the following installed on your system:
+* [Python](https://www.python.org/) (version 3.x recommended).
+* A Scheme interpreter or environment compatible with the codebase (e.g., *Racket*, *Chez Scheme*).
