@@ -191,6 +191,16 @@ The backend is an interactive JSON server, so it remains waiting for input when
 started directly. Close it with `Ctrl+C` after verifying that Racket launches
 successfully.
 
+To run the Racket unit tests:
+
+```bash
+racket Backend/tests/test-motor.rkt
+```
+
+The test suite uses Racket's built-in `rackunit` library and validates the
+knowledge base, rule application, inference questions, explanations, and reset
+behavior.
+
 ---
 
 ## Documentation
