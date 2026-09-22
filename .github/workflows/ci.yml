@@ -31,11 +31,15 @@ jobs:
 
     - name: Check Python linting
       run: |
-        ruff check Frontend tests
+        ruff check .
 
     - name: Check Python formatting
       run: |
-        black --check Frontend tests
+        ruff format --check .
+
+    - name: Check Python types
+      run: |
+        mypy Frontend tests
 
     - name: Set up Racket
       uses: BogdanPopa/setup-racket@v1

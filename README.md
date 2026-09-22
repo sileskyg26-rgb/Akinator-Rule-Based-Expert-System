@@ -64,11 +64,20 @@ python -m Frontend
 stardew-akinator
 ```
 
-The development configuration includes `pytest`, `ruff`, and `black`.
+The development configuration includes `pytest`, `ruff` (linting and
+formatting), and `mypy` (type checking).
 The existing `unittest` suite can be run with:
 
 ```bash
 python -m unittest discover -s tests -v
+```
+
+Quality checks can be run locally with:
+
+```bash
+ruff check .
+ruff format --check .
+mypy Frontend tests
 ```
 
 ### Validate the knowledge base

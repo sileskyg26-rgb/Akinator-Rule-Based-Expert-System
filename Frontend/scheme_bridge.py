@@ -60,9 +60,9 @@ class SchemeBridge:
                 "No se pudo encontrar Racket en el sistema. Asegúrate de tenerlo instalado en una ruta estándar."
             )
 
-        self.proc = None
-        self._stdout_queue = None
-        self._stderr_lines = []
+        self.proc: subprocess.Popen[str] | None = None
+        self._stdout_queue: queue.Queue[str | None] | None = None
+        self._stderr_lines: list[str] = []
         self._stderr_lock = threading.Lock()
         self._iniciar_proceso()
 
@@ -94,17 +94,24 @@ class SchemeBridge:
             raise RuntimeError(f"Error crítico al iniciar el backend de Scheme: {e}")
 
     def _leer_stdout(self):
+        proceso = self.proc
+        salida = self._stdout_queue
+        if proceso is None or proceso.stdout is None or salida is None:
+            return
         try:
-            for linea in iter(self.proc.stdout.readline, ""):
-                self._stdout_queue.put(linea)
+            for linea in iter(proceso.stdout.readline, ""):
+                salida.put(linea)
         except (OSError, ValueError):
             logger.debug("La lectura de stdout terminó durante el cierre del motor.")
         finally:
-            self._stdout_queue.put(None)
+            salida.put(None)
 
     def _leer_stderr(self):
+        proceso = self.proc
+        if proceso is None or proceso.stderr is None:
+            return
         try:
-            for linea in iter(self.proc.stderr.readline, ""):
+            for linea in iter(proceso.stderr.readline, ""):
                 logger.warning("stderr del motor Scheme: %s", linea.rstrip())
                 with self._stderr_lock:
                     self._stderr_lines.append(linea.rstrip())
@@ -128,7 +135,8 @@ class SchemeBridge:
             threading.Thread(target=self._leer_stdout, daemon=True).start()
 
     def enviar_mensaje(self, accion: dict) -> dict:
-        if not self.proc or self.proc.poll() is not None:
+        proceso = self.proc
+        if not proceso or proceso.poll() is not None:
             logger.error(
                 "Se intentó enviar un mensaje con el motor inactivo. Detalle: %s",
                 self._obtener_stderr(),
@@ -141,8 +149,12 @@ class SchemeBridge:
             mensaje = json.dumps(accion)
             logger.debug("Mensaje enviado al motor: %s", mensaje)
             inicio = time.perf_counter()
-            self.proc.stdin.write(mensaje + "\n")
-            self.proc.stdin.flush()
+            if proceso.stdin is None:
+                raise ConnectionError(
+                    "El backend no tiene un canal de entrada disponible."
+                )
+            proceso.stdin.write(mensaje + "\n")
+            proceso.stdin.flush()
         except (BrokenPipeError, OSError) as error:
             logger.exception("Falló el envío de un mensaje al motor.")
             raise ConnectionError(
@@ -151,8 +163,13 @@ class SchemeBridge:
             ) from error
 
         self._asegurar_lector()
+        respuesta_queue = self._stdout_queue
+        if respuesta_queue is None:
+            raise ConnectionError(
+                "El backend no tiene un lector de respuestas disponible."
+            )
         try:
-            respuesta_linea = self._stdout_queue.get(timeout=self.timeout)
+            respuesta_linea = respuesta_queue.get(timeout=self.timeout)
         except queue.Empty as error:
             logger.error(
                 "Timeout esperando respuesta del motor después de %.3f segundos.",

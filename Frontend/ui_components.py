@@ -1,6 +1,8 @@
 import tkinter as tk
 import logging
 import os
+from typing import Callable
+
 from PIL import Image, ImageTk
 
 logger = logging.getLogger("stardew_akinator.ui")
@@ -22,7 +24,7 @@ class StardewTheme:
 class QuestionView(tk.Frame):
     """Componente modular para mostrar la pregunta y opciones de respuesta temáticas."""
 
-    def __init__(self, parent, on_answer_callback):
+    def __init__(self, parent, on_answer_callback: Callable[[str], None]):
         super().__init__(parent, bg=StardewTheme.PANEL_PARCHMENT, bd=5, relief="solid")
         self.on_answer_callback = on_answer_callback
         self._construir_widgets()
@@ -60,6 +62,10 @@ class QuestionView(tk.Frame):
         ]
 
         for texto, valor, color in opciones:
+
+            def responder(valor_respuesta: str = valor) -> None:
+                self.on_answer_callback(valor_respuesta)
+
             btn = tk.Button(
                 self.botones_frame,
                 text=texto,
@@ -70,7 +76,7 @@ class QuestionView(tk.Frame):
                 height=2,
                 bd=3,
                 relief="raised",
-                command=lambda v=valor: self.on_answer_callback(v),
+                command=responder,
             )
             btn.pack(side="left", padx=4)
 
