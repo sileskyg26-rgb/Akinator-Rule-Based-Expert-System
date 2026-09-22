@@ -1,5 +1,7 @@
 class GameController:
     """Gestiona el estado del juego, historial de respuestas y estadísticas."""
+    PROTOCOL_VERSION = 1
+
     def __init__(self, bridge):
         self.bridge = bridge
         self.respuestas = []
@@ -15,9 +17,10 @@ class GameController:
 
     def obtener_siguiente_paso(self):
         peticion = {
+            "version": self.PROTOCOL_VERSION,
             "accion": "inferir",
-            "respuestas": self.respuestas,
-            "preguntadas": self.preguntadas
+            "respuestas": list(self.respuestas),
+            "preguntadas": list(self.preguntadas)
         }
         resultado = self.bridge.enviar_mensaje(peticion)
         

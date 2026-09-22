@@ -22,6 +22,7 @@ class GameControllerTests(unittest.TestCase):
 
     def test_obtener_siguiente_paso_registra_la_pregunta(self):
         self.bridge.enviar_mensaje.return_value = {
+            "version": 1,
             "tipo": "pregunta",
             "caracteristica": "es-nino",
             "candidatos": 4,
@@ -30,8 +31,17 @@ class GameControllerTests(unittest.TestCase):
         resultado = self.controller.obtener_siguiente_paso()
 
         self.assertEqual(resultado["tipo"], "pregunta")
+        self.assertEqual(resultado["version"], 1)
         self.assertEqual(self.controller.caracteristica_actual, "es-nino")
         self.assertEqual(self.controller.preguntadas, ["es-nino"])
+        self.bridge.enviar_mensaje.assert_called_once_with(
+            {
+                "version": 1,
+                "accion": "inferir",
+                "respuestas": [],
+                "preguntadas": [],
+            }
+        )
 
     def test_registrar_respuesta_usa_la_pregunta_actual(self):
         self.controller.caracteristica_actual = "le-gusta-arte"

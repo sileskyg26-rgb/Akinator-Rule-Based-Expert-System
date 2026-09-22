@@ -10,17 +10,34 @@ class SchemeBridgeTests(unittest.TestCase):
         process = Mock()
         process.poll.return_value = None
         process.stdout.readline.return_value = (
-            '{"tipo":"pregunta","caracteristica":"es-nino","candidatos":4}\n'
+            '{"version":1,"tipo":"pregunta","caracteristica":"es-nino","candidatos":4}\n'
         )
         bridge = SchemeBridge.__new__(SchemeBridge)
         bridge.proc = process
-        mensaje = {"accion": "inferir", "respuestas": [], "preguntadas": []}
+        mensaje = {
+            "version": 1,
+            "accion": "inferir",
+            "respuestas": [],
+            "preguntadas": [],
+        }
 
         resultado = bridge.enviar_mensaje(mensaje)
 
         process.stdin.write.assert_called_once_with(json.dumps(mensaje) + "\n")
         process.stdin.flush.assert_called_once_with()
         self.assertEqual(resultado["tipo"], "pregunta")
+
+    def test_enviar_mensaje_rechaza_una_version_incompatible(self):
+        process = Mock()
+        process.poll.return_value = None
+        process.stdout.readline.return_value = (
+            '{"version":2,"tipo":"pregunta","caracteristica":"es-nino","candidatos":4}\n'
+        )
+        bridge = SchemeBridge.__new__(SchemeBridge)
+        bridge.proc = process
+
+        with self.assertRaisesRegex(ValueError, "incompatible"):
+            bridge.enviar_mensaje({"version": 1, "accion": "inferir"})
 
     def test_enviar_mensaje_falla_si_el_proceso_termino(self):
         process = Mock()

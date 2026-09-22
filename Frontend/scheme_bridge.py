@@ -3,6 +3,8 @@ import json
 import os
 import shutil
 
+PROTOCOL_VERSION = 1
+
 def _encontrar_racket():
     """Busca automáticamente el ejecutable de Racket en el sistema o rutas comunes de Windows."""
     # 1. Intentar si está disponible globalmente en el PATH
@@ -69,7 +71,13 @@ class SchemeBridge:
         if not respuesta_linea:
             return {"tipo": "error", "mensaje": "No se recibió respuesta de Scheme."}
         
-        return json.loads(respuesta_linea)
+        respuesta = json.loads(respuesta_linea)
+        if respuesta.get("version") != PROTOCOL_VERSION:
+            raise ValueError(
+                f"Versión de protocolo incompatible: "
+                f"{respuesta.get('version')!r}; se esperaba {PROTOCOL_VERSION}."
+            )
+        return respuesta
 
     def cerrar(self):
         if self.proc:

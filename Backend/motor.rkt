@@ -463,6 +463,13 @@
 
 (require json)
 
+(define protocolo-version 1)
+
+(define (respuesta-error mensaje)
+  (hash 'version protocolo-version
+        'tipo "error"
+        'mensaje mensaje))
+
 ; ------------------------------------------------------------
 ; json->par: convierte ["es-mujer","si"] en el par
 ; (es-mujer . si) que usa el motor de inferencia.
@@ -487,16 +494,19 @@
 (define (resultado->json res respuestas)
   (if (eq? (car res) 'pregunta)
       (hash 'tipo "pregunta"
+            'version protocolo-version
             'caracteristica (symbol->string (cadr res))
             'candidatos (caddr res))
       (let ((nombre (cadr res))
             (confianza (exact->inexact (caddr res))))
         (if (eq? nombre 'ninguno)
-            (hash 'tipo "veredicto"
+            (hash 'version protocolo-version
+                  'tipo "veredicto"
                   'entidad #f
                   'confianza confianza
                   'explicacion '())
-            (hash 'tipo "veredicto"
+            (hash 'version protocolo-version
+                  'tipo "veredicto"
                   'entidad (symbol->string nombre)
                   'confianza confianza
                   'explicacion (explicacion->json (explicar nombre respuestas)))))))
@@ -507,9 +517,23 @@
 ; ------------------------------------------------------------
 (define (procesar-mensaje linea)
   (let* ((msg (string->jsexpr linea))
-         (respuestas (map json->par (hash-ref msg 'respuestas '())))
-         (preguntadas (map string->symbol (hash-ref msg 'preguntadas '()))))
-    (jsexpr->string (resultado->json (inferir respuestas preguntadas) respuestas))))
+         (version (hash-ref msg 'version #f))
+         (accion (hash-ref msg 'accion #f)))
+    (cond
+      [(not (equal? version protocolo-version))
+       (jsexpr->string
+        (respuesta-error
+         (format "Versión de protocolo incompatible: ~a; se esperaba ~a."
+                 version protocolo-version)))]
+      [(not (equal? accion "inferir"))
+       (jsexpr->string
+        (respuesta-error
+         "La acción debe ser 'inferir'."))]
+      [else
+       (let ((respuestas (map json->par (hash-ref msg 'respuestas '())))
+             (preguntadas (map string->symbol (hash-ref msg 'preguntadas '()))))
+         (jsexpr->string
+          (resultado->json (inferir respuestas preguntadas) respuestas)))])))
 
 ; ------------------------------------------------------------
 ; servidor: ciclo principal. Lee una linea, responde una linea.
@@ -523,11 +547,11 @@
         (with-handlers ((exn:fail?
                          (lambda (e)
                            (displayln (jsexpr->string
-                                       (hash 'tipo "error"
-                                             'mensaje (exn-message e))))
+                                       (respuesta-error (exn-message e))))
                            (flush-output (current-output-port)))))
           (displayln (procesar-mensaje linea))
           (flush-output (current-output-port)))
         (loop)))))
 
-(servidor)
+(module+ main
+  (servidor))

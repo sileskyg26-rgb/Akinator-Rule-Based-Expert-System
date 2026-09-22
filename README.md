@@ -56,3 +56,9 @@ racket Backend/validador.rkt
 Structural problems return a failing exit code. Missing characteristics are
 reported as warnings because the inference engine treats omitted facts as
 `desconocido`.
+
+## Protocol
+
+The Python frontend and Racket backend communicate using versioned JSON Lines.
+The current protocol version is `1`. See the complete contract in
+[`docs/protocol.md`](docs/protocol.md).
