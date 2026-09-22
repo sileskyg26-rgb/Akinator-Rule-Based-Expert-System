@@ -530,4 +530,5 @@
           (flush-output (current-output-port)))
         (loop)))))
 
-(servidor)
+(module+ main
+  (servidor))
