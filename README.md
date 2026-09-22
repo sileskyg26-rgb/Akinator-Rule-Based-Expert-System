@@ -62,3 +62,7 @@ reported as warnings because the inference engine treats omitted facts as
 The Python frontend and Racket backend communicate using versioned JSON Lines.
 The current protocol version is `1`. See the complete contract in
 [`docs/protocol.md`](docs/protocol.md).
+
+The process bridge also applies a read timeout, captures backend diagnostics
+from `stderr`, reports malformed responses, and supports clean shutdown and
+explicit motor restart through `SchemeBridge.reiniciar()`.

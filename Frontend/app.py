@@ -96,7 +96,11 @@ class StardewAkinatorApp:
         self.siguiente_turno()
 
     def siguiente_turno(self):
-        resultado = self.controller.obtener_siguiente_paso()
+        try:
+            resultado = self.controller.obtener_siguiente_paso()
+        except (ConnectionError, TimeoutError, ValueError) as error:
+            messagebox.showerror("Error de comunicación", str(error))
+            return
         
         if resultado.get("tipo") == "pregunta":
             caracteristica = resultado["caracteristica"]
