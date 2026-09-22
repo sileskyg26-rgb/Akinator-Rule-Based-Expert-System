@@ -11,9 +11,7 @@ class SchemeBridgeTests(unittest.TestCase):
     def test_enviar_mensaje_serializa_y_parsea_json(self):
         process = Mock()
         process.poll.return_value = None
-        process.stdout.readline.return_value = (
-            '{"version":1,"tipo":"pregunta","caracteristica":"es-nino","candidatos":4}\n'
-        )
+        process.stdout.readline.return_value = '{"version":1,"tipo":"pregunta","caracteristica":"es-nino","candidatos":4}\n'
         bridge = SchemeBridge.__new__(SchemeBridge)
         bridge.proc = process
         bridge.timeout = 1
@@ -39,9 +37,7 @@ class SchemeBridgeTests(unittest.TestCase):
     def test_enviar_mensaje_rechaza_una_version_incompatible(self):
         process = Mock()
         process.poll.return_value = None
-        process.stdout.readline.return_value = (
-            '{"version":2,"tipo":"pregunta","caracteristica":"es-nino","candidatos":4}\n'
-        )
+        process.stdout.readline.return_value = '{"version":2,"tipo":"pregunta","caracteristica":"es-nino","candidatos":4}\n'
         bridge = SchemeBridge.__new__(SchemeBridge)
         bridge.proc = process
         bridge.timeout = 1
@@ -111,9 +107,10 @@ class SchemeBridgeTests(unittest.TestCase):
     def test_reiniciar_cierra_y_arranca_un_proceso_nuevo(self):
         bridge = self._bridge_with_queue(None)
 
-        with patch.object(bridge, "cerrar") as cerrar, patch.object(
-            bridge, "_iniciar_proceso"
-        ) as iniciar:
+        with (
+            patch.object(bridge, "cerrar") as cerrar,
+            patch.object(bridge, "_iniciar_proceso") as iniciar,
+        ):
             bridge.reiniciar()
 
         cerrar.assert_called_once_with()

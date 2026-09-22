@@ -11,28 +11,33 @@ PROTOCOL_VERSION = 1
 DEFAULT_TIMEOUT_SECONDS = 5.0
 logger = logging.getLogger("stardew_akinator.scheme_bridge")
 
+
 def _encontrar_racket():
     """Busca automáticamente el ejecutable de Racket en el sistema o rutas comunes de Windows."""
     # 1. Intentar si está disponible globalmente en el PATH
     if shutil.which("racket"):
         return "racket"
-    
+
     # 2. Rutas comunes de instalación en Windows
     rutas_comunes = [
         r"C:\Program Files\Racket\racket.exe",
         r"C:\Program Files (x86)\Racket\racket.exe",
-        os.path.expanduser(r"~\AppData\Local\Programs\Racket\racket.exe")
+        os.path.expanduser(r"~\AppData\Local\Programs\Racket\racket.exe"),
     ]
-    
+
     for ruta in rutas_comunes:
         if os.path.exists(ruta):
             return ruta
-            
+
     return None
+
 
 class SchemeBridge:
     """Responsable exclusivo de la comunicación bidireccional con el backend de Scheme."""
-    def __init__(self, engine_path="Backend/motor.rkt", timeout=DEFAULT_TIMEOUT_SECONDS):
+
+    def __init__(
+        self, engine_path="Backend/motor.rkt", timeout=DEFAULT_TIMEOUT_SECONDS
+    ):
         if timeout <= 0:
             raise ValueError("El timeout debe ser mayor que cero.")
 
@@ -42,9 +47,11 @@ class SchemeBridge:
         ruta_actual = os.path.dirname(os.path.abspath(__file__))
         ruta_raiz = os.path.dirname(ruta_actual)
         self.script_motor = os.path.join(ruta_raiz, engine_path)
-        
+
         if not os.path.exists(self.script_motor):
-            raise FileNotFoundError(f"No se encontró el archivo de Scheme en la ruta: {self.script_motor}")
+            raise FileNotFoundError(
+                f"No se encontró el archivo de Scheme en la ruta: {self.script_motor}"
+            )
 
         # Encontrar Racket automáticamente
         self.racket_ejecutable = _encontrar_racket()
@@ -67,7 +74,7 @@ class SchemeBridge:
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True,
-                encoding="utf-8"
+                encoding="utf-8",
             )
             self._stdout_queue = queue.Queue()
             self._stderr_lines = []
@@ -166,14 +173,19 @@ class SchemeBridge:
         try:
             respuesta = json.loads(respuesta_linea)
         except json.JSONDecodeError as error:
-            logger.error("El motor devolvió JSON inválido: %s", respuesta_linea.rstrip())
+            logger.error(
+                "El motor devolvió JSON inválido: %s", respuesta_linea.rstrip()
+            )
             raise ValueError(
                 f"El backend devolvió JSON inválido: {error.msg}. "
                 f"Detalle: {self._obtener_stderr()}"
             ) from error
 
         if respuesta.get("version") != PROTOCOL_VERSION:
-            logger.error("Versión de protocolo incompatible recibida: %s", respuesta.get("version"))
+            logger.error(
+                "Versión de protocolo incompatible recibida: %s",
+                respuesta.get("version"),
+            )
             raise ValueError(
                 f"Versión de protocolo incompatible: "
                 f"{respuesta.get('version')!r}; se esperaba {PROTOCOL_VERSION}."

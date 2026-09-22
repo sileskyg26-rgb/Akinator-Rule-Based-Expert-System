@@ -44,6 +44,33 @@ Make sure you have the following installed on your system:
 * [Python](https://www.python.org/) (version 3.x recommended).
 * A Scheme interpreter or environment compatible with the codebase (e.g., *Racket*, *Chez Scheme*).
 
+## Python package setup
+
+The Python frontend is packaged through [`pyproject.toml`](pyproject.toml).
+Create a virtual environment and install the application with its development
+tools:
+
+```bash
+python -m venv .venv
+python -m pip install --upgrade pip
+python -m pip install -e ".[dev]"
+```
+
+You can launch the application through the package module or the installed
+command:
+
+```bash
+python -m Frontend
+stardew-akinator
+```
+
+The development configuration includes `pytest`, `ruff`, and `black`.
+The existing `unittest` suite can be run with:
+
+```bash
+python -m unittest discover -s tests -v
+```
+
 ### Validate the knowledge base
 
 The Racket validator checks entity names, feature names, allowed values,

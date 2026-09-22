@@ -1,17 +1,13 @@
 import tkinter as tk
 from tkinter import messagebox
-import sys
-import os
 
-# Ajustar path para importaciones relativas limpias
-sys.path.append(os.path.dirname(__file__))
-
-from scheme_bridge import SchemeBridge
-from game_controller import GameController
-from ui_components import StardewTheme, QuestionView, ResultView
-from logging_config import configurar_logging
+from .game_controller import GameController
+from .logging_config import configurar_logging
+from .scheme_bridge import SchemeBridge
+from .ui_components import QuestionView, ResultView, StardewTheme
 
 logger = configurar_logging()
+
 
 class StardewAkinatorApp:
     def __init__(self, root):
@@ -32,7 +28,7 @@ class StardewAkinatorApp:
             return
 
         self.controller = GameController(self.bridge)
-        
+
         self._construir_interfaz()
         self.iniciar_juego()
 
@@ -40,17 +36,22 @@ class StardewAkinatorApp:
         # Título superior
         titulo_frame = tk.Frame(self.root, bg="#3e2723", bd=4, relief="ridge")
         titulo_frame.pack(fill="x", padx=20, pady=15)
-        
+
         tk.Label(
-            titulo_frame, text="🌾 Akinator: Stardew Valley 🌾", 
-            font=("Georgia", 18, "bold"), bg="#3e2723", fg=StardewTheme.TEXT_LIGHT
+            titulo_frame,
+            text="🌾 Akinator: Stardew Valley 🌾",
+            font=("Georgia", 18, "bold"),
+            bg="#3e2723",
+            fg=StardewTheme.TEXT_LIGHT,
         ).pack(pady=8)
 
         # Contenedor central modular
         self.container_principal = tk.Frame(self.root, bg=StardewTheme.BG_WOOD)
         self.container_principal.pack(fill="both", expand=True, padx=20, pady=5)
 
-        self.question_view = QuestionView(self.container_principal, self.procesar_respuesta)
+        self.question_view = QuestionView(
+            self.container_principal, self.procesar_respuesta
+        )
         self.question_view.pack(fill="both", expand=True)
 
         self.result_view = ResultView(self.container_principal)
@@ -60,12 +61,22 @@ class StardewAkinatorApp:
         footer_frame = tk.Frame(self.root, bg=StardewTheme.BG_WOOD)
         footer_frame.pack(fill="x", padx=20, pady=10)
 
-        self.lbl_stats = tk.Label(footer_frame, text=self.controller.obtener_estadisticas(), font=("Arial", 10), bg=StardewTheme.BG_WOOD, fg="#d7ccc8")
+        self.lbl_stats = tk.Label(
+            footer_frame,
+            text=self.controller.obtener_estadisticas(),
+            font=("Arial", 10),
+            bg=StardewTheme.BG_WOOD,
+            fg="#d7ccc8",
+        )
         self.lbl_stats.pack(side="left")
 
         tk.Button(
-            footer_frame, text="🔄 Reiniciar Partida", font=("Arial", 10, "bold"),
-            bg=StardewTheme.BTN_BROWN, fg="white", command=self.reiniciar_partida
+            footer_frame,
+            text="🔄 Reiniciar Partida",
+            font=("Arial", 10, "bold"),
+            bg=StardewTheme.BTN_BROWN,
+            fg="white",
+            command=self.reiniciar_partida,
         ).pack(side="right")
 
     def formatear_pregunta(self, car_str):
@@ -90,7 +101,7 @@ class StardewAkinatorApp:
             "le-gusta-cocinar": "¿Le gusta cocinar o preparar recetas gastronómicas?",
             "usa-silla-de-ruedas": "¿Usa silla de ruedas?",
             "es-magico-o-misterioso": "¿Tiene un aire mágico, místico o misterioso?",
-            "es-hijo-unico": "¿Es hijo/a único/a (sin hermanos)?"
+            "es-hijo-unico": "¿Es hijo/a único/a (sin hermanos)?",
         }
         return mapeo.get(car_str, f"¿Tiene la característica '{car_str}'?")
 
@@ -106,16 +117,16 @@ class StardewAkinatorApp:
         except (ConnectionError, TimeoutError, ValueError) as error:
             messagebox.showerror("Error de comunicación", str(error))
             return
-        
+
         if resultado.get("tipo") == "pregunta":
             caracteristica = resultado["caracteristica"]
             candidatos = resultado["candidatos"]
             num_pregunta = len(self.controller.respuestas) + 1
-            
+
             texto_p = self.formatear_pregunta(caracteristica)
             estado = f"Pregunta #{num_pregunta} | Candidatos posibles: {candidatos}"
             self.question_view.actualizar(texto_p, estado)
-            
+
         elif resultado.get("tipo") == "veredicto":
             self.mostrar_veredicto(resultado)
 
@@ -126,20 +137,22 @@ class StardewAkinatorApp:
     def mostrar_veredicto(self, resultado):
         self.question_view.pack_forget()
         self.result_view.pack(fill="both", expand=True)
-        
+
         entidad = resultado.get("entidad")
         confianza = resultado.get("confianza", 0.0) * 100
         explicacion = resultado.get("explicacion", [])
-        
+
         self.result_view.mostrar(entidad, confianza, explicacion)
-        
+
         if entidad:
             nombre_limpio = entidad.replace("-", " ").title()
-            acerto = messagebox.askyesno("Verificación", f"¿Es {nombre_limpio} el personaje en el que pensabas?")
+            acerto = messagebox.askyesno(
+                "Verificación", f"¿Es {nombre_limpio} el personaje en el que pensabas?"
+            )
             self.controller.registrar_resultado(acerto)
         else:
             self.controller.registrar_resultado(False)
-            
+
         self.lbl_stats.config(text=self.controller.obtener_estadisticas())
 
     def reiniciar_partida(self):
@@ -150,9 +163,13 @@ class StardewAkinatorApp:
         self.bridge.cerrar()
         self.root.destroy()
 
-if __name__ == "__main__":
+
+def main():
     root = tk.Tk()
     app = StardewAkinatorApp(root)
     root.protocol("WM_DELETE_WINDOW", app.cerrar)
     root.mainloop()
-    
+
+
+if __name__ == "__main__":
+    main()

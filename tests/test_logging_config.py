@@ -21,7 +21,9 @@ class LoggingConfigTests(unittest.TestCase):
                     handler.flush()
 
                 self.assertTrue(archivo_log.exists())
-                self.assertIn("evento de prueba", archivo_log.read_text(encoding="utf-8"))
+                self.assertIn(
+                    "evento de prueba", archivo_log.read_text(encoding="utf-8")
+                )
             finally:
                 for handler in root.handlers:
                     handler.close()

@@ -1,11 +1,11 @@
 import logging
 
-
 logger = logging.getLogger("stardew_akinator.game_controller")
 
 
 class GameController:
     """Gestiona el estado del juego, historial de respuestas y estadísticas."""
+
     PROTOCOL_VERSION = 1
 
     def __init__(self, bridge):
@@ -27,7 +27,7 @@ class GameController:
             "version": self.PROTOCOL_VERSION,
             "accion": "inferir",
             "respuestas": list(self.respuestas),
-            "preguntadas": list(self.preguntadas)
+            "preguntadas": list(self.preguntadas),
         }
         resultado = self.bridge.enviar_mensaje(peticion)
         logger.info(
@@ -35,11 +35,11 @@ class GameController:
             resultado.get("tipo"),
             len(self.preguntadas),
         )
-        
+
         if resultado.get("tipo") == "pregunta":
             self.caracteristica_actual = resultado["caracteristica"]
             self.preguntadas.append(self.caracteristica_actual)
-            
+
         return resultado
 
     def registrar_respuesta(self, valor_respuesta: str):
