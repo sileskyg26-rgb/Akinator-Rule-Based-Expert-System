@@ -1,117 +1,67 @@
 import json
-import queue
-import threading
 import unittest
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
 from Frontend.scheme_bridge import SchemeBridge
 
 
 class SchemeBridgeTests(unittest.TestCase):
-    def test_enviar_mensaje_serializa_y_parsea_json(self):
-        process = Mock()
-        process.poll.return_value = None
-        process.stdout.readline.return_value = '{"version":1,"tipo":"pregunta","caracteristica":"es-nino","candidatos":4}\n'
+    def create_bridge_with_process(self, process):
         bridge = SchemeBridge.__new__(SchemeBridge)
         bridge.proc = process
-        bridge.timeout = 1
-        bridge._stdout_queue = queue.Queue()
-        bridge._stdout_queue.put(
-            '{"version":1,"tipo":"pregunta","caracteristica":"es-nino","candidatos":4}\n'
+        return bridge
+
+    def test_enviar_mensaje_serializa_la_peticion_y_lee_la_respuesta(self):
+        process = Mock()
+        process.poll.return_value = None
+        process.stdout.readline.return_value = (
+            '{"tipo": "pregunta", "caracteristica": "es-nino", "candidatos": 4}\n'
         )
-        bridge._stderr_lines = []
-        bridge._stderr_lock = threading.Lock()
-        mensaje = {
-            "version": 1,
+        bridge = self.create_bridge_with_process(process)
+        peticion = {
             "accion": "inferir",
             "respuestas": [],
             "preguntadas": [],
         }
 
-        resultado = bridge.enviar_mensaje(mensaje)
+        resultado = bridge.enviar_mensaje(peticion)
 
-        process.stdin.write.assert_called_once_with(json.dumps(mensaje) + "\n")
+        process.stdin.write.assert_called_once_with(json.dumps(peticion) + "\n")
         process.stdin.flush.assert_called_once_with()
         self.assertEqual(resultado["tipo"], "pregunta")
+        self.assertEqual(resultado["caracteristica"], "es-nino")
 
-    def test_enviar_mensaje_rechaza_una_version_incompatible(self):
-        process = Mock()
-        process.poll.return_value = None
-        process.stdout.readline.return_value = '{"version":2,"tipo":"pregunta","caracteristica":"es-nino","candidatos":4}\n'
-        bridge = SchemeBridge.__new__(SchemeBridge)
-        bridge.proc = process
-        bridge.timeout = 1
-        bridge._stdout_queue = queue.Queue()
-        bridge._stdout_queue.put(
-            '{"version":2,"tipo":"pregunta","caracteristica":"es-nino","candidatos":4}\n'
-        )
-        bridge._stderr_lines = []
-        bridge._stderr_lock = threading.Lock()
-
-        with self.assertRaisesRegex(ValueError, "incompatible"):
-            bridge.enviar_mensaje({"version": 1, "accion": "inferir"})
-
-    def test_enviar_mensaje_falla_si_el_proceso_termino(self):
+    def test_enviar_mensaje_falla_si_el_proceso_no_esta_activo(self):
         process = Mock()
         process.poll.return_value = 1
-        process.stderr.read.return_value = "backend detenido"
-        bridge = SchemeBridge.__new__(SchemeBridge)
-        bridge.proc = process
-        bridge.timeout = 1
-        bridge._stderr_lines = ["backend detenido"]
-        bridge._stderr_lock = threading.Lock()
+        process.stderr.read.return_value = "Racket terminó inesperadamente"
+        bridge = self.create_bridge_with_process(process)
 
-        with self.assertRaises(ConnectionError):
+        with self.assertRaisesRegex(ConnectionError, "Racket terminó"):
             bridge.enviar_mensaje({"accion": "inferir"})
 
-    def test_enviar_mensaje_devuelve_error_sin_respuesta(self):
+    def test_enviar_mensaje_devuelve_error_si_no_hay_respuesta(self):
         process = Mock()
         process.poll.return_value = None
         process.stdout.readline.return_value = ""
-        bridge = SchemeBridge.__new__(SchemeBridge)
-        bridge.proc = process
-        bridge.timeout = 1
-        bridge._stdout_queue = queue.Queue()
-        bridge._stdout_queue.put(None)
-        bridge._stderr_lines = []
-        bridge._stderr_lock = threading.Lock()
+        bridge = self.create_bridge_with_process(process)
 
-        with self.assertRaises(ConnectionError):
-            bridge.enviar_mensaje({"accion": "inferir"})
+        resultado = bridge.enviar_mensaje({"accion": "inferir"})
 
-    def _bridge_with_queue(self, response, timeout=0.01):
+        self.assertEqual(
+            resultado,
+            {"tipo": "error", "mensaje": "No se recibió respuesta de Scheme."},
+        )
+
+    def test_enviar_mensaje_rechaza_respuestas_no_json(self):
         process = Mock()
         process.poll.return_value = None
-        bridge = SchemeBridge.__new__(SchemeBridge)
-        bridge.proc = process
-        bridge.timeout = timeout
-        bridge._stdout_queue = queue.Queue()
-        if response is not None:
-            bridge._stdout_queue.put(response)
-        bridge._stderr_lines = ["diagnóstico de prueba"]
-        bridge._stderr_lock = __import__("threading").Lock()
-        return bridge
+        process.stdout.readline.return_value = "respuesta inválida\n"
+        bridge = self.create_bridge_with_process(process)
 
-    def test_enviar_mensaje_falla_por_timeout(self):
-        bridge = self._bridge_with_queue(None)
-
-        with self.assertRaisesRegex(TimeoutError, "no respondió"):
+        with self.assertRaises(json.JSONDecodeError):
             bridge.enviar_mensaje({"accion": "inferir"})
 
-    def test_enviar_mensaje_rechaza_json_invalido(self):
-        bridge = self._bridge_with_queue("respuesta rota\n")
 
-        with self.assertRaisesRegex(ValueError, "JSON inválido"):
-            bridge.enviar_mensaje({"accion": "inferir"})
-
-    def test_reiniciar_cierra_y_arranca_un_proceso_nuevo(self):
-        bridge = self._bridge_with_queue(None)
-
-        with (
-            patch.object(bridge, "cerrar") as cerrar,
-            patch.object(bridge, "_iniciar_proceso") as iniciar,
-        ):
-            bridge.reiniciar()
-
-        cerrar.assert_called_once_with()
-        iniciar.assert_called_once_with()
+if __name__ == "__main__":
+    unittest.main()

@@ -1,1 +1,1 @@
-"""Pruebas automatizadas del proyecto."""
+"""Pruebas automatizadas del proyecto Stardew Akinator."""

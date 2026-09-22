@@ -1,0 +1,2 @@
+# Dependencias principales del proyecto Stardew Akinator
+Pillow>=9.0.0
