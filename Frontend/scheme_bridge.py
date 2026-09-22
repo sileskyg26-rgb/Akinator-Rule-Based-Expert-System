@@ -24,7 +24,7 @@ def _encontrar_racket():
 
 class SchemeBridge:
     """Responsable exclusivo de la comunicación bidireccional con el backend de Scheme."""
-    def __init__(self, engine_path="Backened/motor.rkt"):
+    def __init__(self, engine_path="Backend/motor.rkt"):
         # Construir la ruta absoluta basada en la ubicación real del archivo actual
         ruta_actual = os.path.dirname(os.path.abspath(__file__))
         ruta_raiz = os.path.dirname(ruta_actual)
